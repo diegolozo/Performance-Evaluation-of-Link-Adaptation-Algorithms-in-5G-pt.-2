@@ -1,0 +1,16 @@
+# Set text colors
+TXT_CLEAR='\033[0m'
+TXT_RED='\033[0;31m'
+TXT_GREEN='\033[0;32m'
+TXT_YELLOW='\033[0;33m'
+TXT_BLUE='\033[0;34m'
+TXT_MAGENTA='\033[0;35m'
+TXT_CYAN='\033[0;36m'
+
+# Set Background colors
+BG_RED='\033[0;41m'
+BG_GREEN='\033[0;42m'
+BG_YELLOW='\033[0;43m'
+BG_BLUE='\033[0;44m'
+BG_MAGENTA='\033[0;45m'
+BG_MAGENTA='\033[0;46m'
