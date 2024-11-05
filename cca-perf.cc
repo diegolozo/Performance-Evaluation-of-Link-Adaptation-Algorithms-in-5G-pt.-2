@@ -22,6 +22,8 @@
 #include "ns3/ns3-ai-msg-interface.h"
 #include "ns3/lte-rlc-um.h"
 #include "ns3/tcp-socket-state.h"
+#include "ns3/enum.h"
+#include "ns3/error-model.h"
 
 /* Include systems libraries */
 #include <sys/types.h>
@@ -189,6 +191,14 @@ int main(int argc, char* argv[]) {
     double rlcBufferPerc = 100;     // x*DBP
     double rlcBuffer = 999999999; // Bytes BDP=250Mbps*100ms default: 999999999
 
+    // CQI Probe own variables.
+    uint8_t cqiHighGain = 2;         // Step of CQI probe
+    Time ProbeCqiDuration = MilliSeconds(20);  // miliseconds
+    Time stepFrequency = MilliSeconds(500); // miliseconds
+    double blerTarget = 0.1;
+    int amcAlgorithm = (int)NrAmc::CqiAlgorithm::HYBRID_BLER_TARGET;
+    int phyDistro = (int)PhysicalDistributionOptions::TREES;
+
     // Trace activation
     bool NRTrace = true;    // whether to enable Trace NR
     bool TCPTrace = true;   // whether to enable Trace TCP
@@ -248,7 +258,6 @@ int main(int argc, char* argv[]) {
     double xUE2 = 40;
     double xUE3 = 80;
 
-    int phyDistro = (int)PhysicalDistributionOptions::DEFAULT;
     std::string aiSegmentName = "My Seg";
     bool useAI = false;
     static GlobalValue g_useAI = GlobalValue("useAI", "Represents if AI (more genereally AQMs) are used", BooleanValue(false), MakeBooleanChecker());
@@ -302,6 +311,12 @@ int main(int argc, char* argv[]) {
     cmd.AddValue("CustomLossLos", "Extra Custom Loss LoS. 0 by default", CustomLossLos);
     cmd.AddValue("CustomLossNlos", "Extra Custom Loss NLoS. 0 by default", CustomLossNlos);
     cmd.AddValue("useECN", "Use ECN instead of dropping packets", useECN);
+    cmd.AddValue("cqiHighGain", "Steps of CQI Probe. Means CQI=round(CQI*cqiHighGain)", cqiHighGain);
+    cmd.AddValue("ProbeCqiDuration", "Duration of the Probe CQI override in s.", ProbeCqiDuration);
+    cmd.AddValue("stepFrequency", "Time between activations of Probe CQI in s", stepFrequency);
+    cmd.AddValue("addNoise", "Add normal distributed noise to the simulation", addNoise);
+    cmd.AddValue("blerTarget", "Set the bler target for the AMC (Default: 0.1)", blerTarget);
+    cmd.AddValue("amcAlgo", "Choose the algorithm to be used in the amc possible values:\n\t0:Original\n\t1:ProbeCqi\n\t2:NewBlerTarget\n\t3:ExpBlerTarget\n\t4:HybridBlerTarget\nCurrent value: ", amcAlgorithm);
     cmd.Parse(argc, argv);
 
     if (!g_useECN.SetValue(BooleanValue(useECN))) {
@@ -378,6 +393,10 @@ int main(int argc, char* argv[]) {
     double AppStartTimes[ueNumPergNb];
     double AppEndTimes[ueNumPergNb];
 
+    /* AMC Algorithm change */
+    NrAmc::SetCqiModel((NrAmc::CqiAlgorithm)amcAlgorithm);
+    NrAmc::Set(cqiHighGain, ProbeCqiDuration, stepFrequency); // To configure the ProbeCQI algorithm
+    NrAmc::SetBlerTarget(blerTarget);
 
     /* Server type - Distance */
     if (serverType == "Remote")
@@ -1156,6 +1175,12 @@ int main(int argc, char* argv[]) {
     inif << "CustomLossLos = " << CustomLossLos << std::endl;
     inif << "CustomLossNlos = " << CustomLossNlos << std::endl;
     inif << "useECN = " << useECN << std::endl;
+    inif << "amcAlgorithm = " << +amcAlgorithm << std::endl;
+    inif << "cqiHighGain = " << +cqiHighGain << std::endl;
+    inif << "ProbeCqiDuration = " << ProbeCqiDuration.GetSeconds()*1000 << " ms" << std::endl;
+    inif << "stepFrequency = " << stepFrequency.GetSeconds()*1000 << " ms" << std::endl;
+    inif << "addNoise = " << addNoise << std::endl;
+    inif << "simlabel = " << "A" << amcAlgorithm << "S" << phyDistro << std::endl;
     inif << std::endl;
 
     for (uint32_t g = 0; g < maxGroup; ++g )
@@ -1218,21 +1243,21 @@ int main(int argc, char* argv[]) {
     }
     PrintNodeAddressInfo(true);
 
-    // if (verbose){
-    //     std::cout << "Flow Monitor"<< std::endl ;
-    // }
-    // FlowMonitorHelper flowmonHelper;
-    // NodeContainer endpointNodes;
-    // for (uint32_t g = 0; g < maxGroup; ++g )
-    // {
-    //     endpointNodes.Add(remoteHosts[g]);
-    // }
-    // endpointNodes.Add(ueNodes);
+    if (verbose){
+        std::cout << "Flow Monitor"<< std::endl ;
+    }
+    FlowMonitorHelper flowmonHelper;
+    NodeContainer endpointNodes;
+    for (uint32_t g = 0; g < maxGroup; ++g )
+    {
+        endpointNodes.Add(remoteHosts[g]);
+    }
+    endpointNodes.Add(ueNodes);
 
-    // Ptr<ns3::FlowMonitor> monitor = flowmonHelper.Install(endpointNodes);
-    // monitor->SetAttribute("DelayBinWidth", DoubleValue(0.001));
-    // monitor->SetAttribute("JitterBinWidth", DoubleValue(0.001));
-    // monitor->SetAttribute("PacketSizeBinWidth", DoubleValue(20));
+    Ptr<ns3::FlowMonitor> monitor = flowmonHelper.Install(endpointNodes);
+    monitor->SetAttribute("DelayBinWidth", DoubleValue(0.001));
+    monitor->SetAttribute("JitterBinWidth", DoubleValue(0.001));
+    monitor->SetAttribute("PacketSizeBinWidth", DoubleValue(20));
     
 
     
@@ -1245,7 +1270,7 @@ int main(int argc, char* argv[]) {
     Simulator::Stop(Seconds(simTime));
     Simulator::Run();
 
-    // processFlowMonitor(monitor, flowmonHelper.GetClassifier(), AppStartTime);
+    processFlowMonitor(monitor, flowmonHelper.GetClassifier(), AppStartTime);
 
     Simulator::Destroy();
     mymcf.close();

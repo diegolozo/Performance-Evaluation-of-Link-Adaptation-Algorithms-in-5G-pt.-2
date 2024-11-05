@@ -11,6 +11,12 @@ cp src/buildings/model/* ../../src/buildings/model
 cp ../../contrib/nr/model/nr-mac-scheduler-lcg.cc ../../contrib/nr/model/nr-mac-scheduler-lcg.cc.${NOW} 
 cp contrib/nr/model/nr-mac-scheduler-lcg.cc ../../contrib/nr/model/. 
 
+# NR AMC
+cp ../../contrib/nr/model/nr-amc.cc ../../contrib/nr/model/nr-amc.cc.${NOW} 
+cp ../../contrib/nr/model/nr-amc.h ../../contrib/nr/model/nr-amc.h.${NOW} 
+cp contrib/nr/model/nr-amc.cc ../../contrib/nr/model/. 
+cp contrib/nr/model/nr-amc.h ../../contrib/nr/model/. 
+
 #  RxPacketTrace.txt lena issue 185
 cp ../../contrib/nr/helper/nr-phy-rx-trace.cc ../../contrib/nr/helper/nr-phy-rx-trace.cc.${NOW} 
 cp contrib/nr/helper/nr-phy-rx-trace.cc ../../contrib/nr/helper/. 

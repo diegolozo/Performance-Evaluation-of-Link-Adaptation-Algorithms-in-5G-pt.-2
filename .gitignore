@@ -1,0 +1,9 @@
+# Visual Studio Code
+*.so
+.vscode/**
+out/
+paths.cfg
+**/__pycache__/**
+lib/__pycache__/**
+lib/__pycache__/*.pyc
+*.pyc
