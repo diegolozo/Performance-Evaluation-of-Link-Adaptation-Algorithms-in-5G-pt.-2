@@ -610,7 +610,7 @@ gzip $outfolder/$bkfolder/*.txt &
 gzip $outfolder/$bkfolder/*.csv &
 
 __full_path=$outfolder/$bkfolder
-source cca-sim-backup.sh $outfolder/$bkfolder
+# source cca-sim-backup.sh $outfolder/$bkfolder
 
 toc=$(date +%s)
 printf "Simulation Processed in: "${TXT_MAGENTA}$(($toc-$tic))${TXT_CLEAR}" seconds\n"

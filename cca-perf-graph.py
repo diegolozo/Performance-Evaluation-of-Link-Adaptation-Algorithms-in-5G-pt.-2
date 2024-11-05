@@ -523,88 +523,87 @@ def remove_graph(myhome):
 @info_n_time_decorator("Mobility")
 def graph_mobility(myhome):
     """Plots the displacement of the UEs."""
-    # tic = time.time()
     file = "mobilityPosition.txt"
     jsonfile = "PhysicalDistribution.json"
     title = "Mobility"
-    # print(TXT_CYAN + title + TXT_CLEAR, end = "...", flush = True)
-    # print('load', end = "", flush = True)
+    
     if os.path.exists(myhome + file):
-        mob = pd.read_csv(myhome + file, sep = "\t", on_bad_lines = 'skip' )
+        mob = pd.read_csv(myhome + file, sep="\t", on_bad_lines='skip')
     else:
-        mob = pd.read_csv(myhome + file + ".gz", compression = 'gzip', sep = "\t", on_bad_lines = 'skip' )
-    # print('ed', end = ".", flush = True)
-    mob.set_index('Time', inplace = True)
+        mob = pd.read_csv(myhome + file + ".gz", compression='gzip', sep="\t", on_bad_lines='skip')
+    mob.set_index('Time', inplace=True)
 
-    # print('plotting', end = ".", flush = True)
-    fig, ax = plt.subplots(figsize = (6, 6))
+    fig, ax = plt.subplots(figsize=(6, 6))
     for ue in mob['UE'].unique():
-        ax1= mob[mob['UE'] == ue].plot.scatter( x = 'x',y = 'y', ax = ax,c = colors[(ue-1) % len(colors)])
-    gNbicon=plt.imread(get_sample_data(os.path.join(root_dir, "img", "gNb.png")))
-    gNbbox = OffsetImage(gNbicon, zoom = 0.25)
+        ax1 = mob[mob['UE'] == ue].plot.scatter(x='x', y='y', ax=ax, c=colors[(ue-1) % len(colors)])
+
+    gNbicon = plt.imread(get_sample_data(os.path.join(root_dir, "img", "gNb.png")))
+    gNbbox = OffsetImage(gNbicon, zoom=0.25)
+
+    house_icon = plt.imread(get_sample_data(os.path.join(root_dir, "img", "house.png")))
+    house_box = OffsetImage(house_icon, zoom=0.05)
+    tree_icon = plt.imread(get_sample_data(os.path.join(root_dir, "img", "tree.png")))
+    tree_box = OffsetImage(tree_icon, zoom=0.05)
 
     if os.path.exists(myhome + jsonfile):
         with open(myhome + jsonfile) as json_file:
             data = json.load(json_file)
 
+        # Set gnb
         for g in data['gnb']:
-            gNbPos = [ g['x'] , g['y']*1.1 ]
-            gNbab = AnnotationBbox(gNbbox,gNbPos, frameon = False)
+            gNbPos = [g['x'], g['y'] * 1.1]
+            gNbab = AnnotationBbox(gNbbox, gNbPos, frameon=False, zorder = 3)
             ax.add_artist(gNbab)
 
-        if (enableBuildings):
+        # Set buildings and trees
+        if enableBuildings:
             for b in data['Buildings']:
-                if ("ExternalWallsType" in b) and (b['ExternalWallsType'] == 0) :
-                    buildcolor = "green"
+                if ("ExternalWallsType" in b) and (b['ExternalWallsType'] == 0):
+                    tree_ab = AnnotationBbox(tree_box, (b['xmin'], b['ymin']), frameon=False, zorder = 1)
+                    ax.add_artist(tree_ab)
                 else:
-                    buildcolor = "red"
-
-                rect = mpatches.Rectangle(( int(b['xmin']), int(b['ymin']) ),
-                                        float(b['xwidth']), 
-                                        float(b['ywidth']), 
-                                        alpha = 0.5, 
-                                        facecolor=buildcolor)
-                plt.gca().add_patch(rect)
+                    house_ab = AnnotationBbox(house_box, (b['xmin'], b['ymin']), frameon=False, zorder = 1)
+                    ax.add_artist(house_ab)
 
     else:
-        if (enableBuildings):
+        # Default position for buildings and trees if JSON doesn't exist
+        if enableBuildings:
             for b in range(buildN):
                 row, col = divmod(b, gridWidth)
-                rect = mpatches.Rectangle(( buildX + (buildLx + buildDx) * col, buildY + (buildLy + buildDy) * row),
-                                          buildLx,
-                                          buildLy,
-                                          alpha = 0.5,
-                                          facecolor="red")
-                plt.gca().add_patch(rect)
+                x = buildX + (buildLx + buildDx) * col
+                y = buildY + (buildLy + buildDy) * row
+                if b % 2 == 0:
+                    tree_ab = AnnotationBbox(tree_box, (x, y), frameon=False, zorder = 1)
+                    ax.add_artist(tree_ab)
+                else:
+                    house_ab = AnnotationBbox(house_box, (x, y), frameon=False, zorder = 1)
+                    ax.add_artist(house_ab)
+
+        # Set gnb
         for g in range(gNbNum):
             gNbPos = [gNbX, (gNbY + g * gNbD) * 1.1]
-            gNbab = AnnotationBbox(gNbbox, gNbPos, frameon = False)
+            gNbab = AnnotationBbox(gNbbox, gNbPos, frameon=False, zorder = 3)
             ax.add_artist(gNbab)
 
-    UEicon=plt.imread(get_sample_data(os.path.join(root_dir, "img", "UE.png")))
-    UEbox = OffsetImage(UEicon, zoom = 0.02)
-
+    # Set UE
+    UEicon = plt.imread(get_sample_data(os.path.join(root_dir, "img", "UE.png")))
+    UEbox = OffsetImage(UEicon, zoom=0.02)
     for ue in mob['UE'].unique():
-        print(ue, end = ".", flush = True)
-        UEPos = mob[mob['UE'] == ue][['x','y']].iloc[-1:].values[0]*1.01
-        UEab = AnnotationBbox(UEbox,UEPos, frameon = False)
+        UEPos = mob[mob['UE'] == ue][['x', 'y']].iloc[-1:].values[0] * 1.01
+        UEab = AnnotationBbox(UEbox, UEPos, frameon=False, zorder = 2)
         ax.add_artist(UEab)
 
-    # plt.xlim([min(0, mob['x'].min()) , (100 if max(10,mob['x'].max()+1)>10 else 10) ])
-    # plt.ylim([min(0, mob['y'].min()) , (100 if max(10,mob['y'].max()+1)>10 else 10) ])
     plt.xlim([0, 100])
     plt.ylim([0, 100])
     ax.set_xlabel("Distance [m]")
     ax.set_ylabel("Distance [m]")
 
     if show_title:
-        plt.suptitle(title, y = 0.99, fontsize = title_font_size)
-        plt.title(subtitle, fontsize = subtitle_font_size)
-     
-    fig.savefig(myhome + prefix + 'MOBILITY' + '.png')
-    plt.close()
-    #toc = time.time()
-    #print(f"\tProcessed in: %.2f" %(toc-tic))
+        plt.suptitle(title, y=0.99, fontsize=title_font_size)
+        plt.title(subtitle, fontsize=subtitle_font_size)
+
+    fig.savefig(myhome + prefix + 'MOBILITY' + '.png', dpi = 600)
+    plt.close()    
     return True
 
 @info_n_time_decorator("SINR of all UEs")
