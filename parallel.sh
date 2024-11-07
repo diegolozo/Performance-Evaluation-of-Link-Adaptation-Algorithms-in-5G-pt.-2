@@ -156,3 +156,5 @@ echo
 # Parallel processing
 printf "${TXT_BLUE}Running simulations... $TXT_CLEAR\n"
 printf "%s\n" "${_cmds_to_run[@]}" | xargs --max-procs=$num_cores -I % bash -c "%"
+
+python3 graph_parallel.py $RUTA_PROBE/out/$batch_dir_name

@@ -59,6 +59,7 @@ serverDelay=4
 CustomLoss=0
 CustomLossLos=0
 CustomLossNlos=0
+amcAlgo=0
 
 helpFunction()
 {
@@ -100,6 +101,7 @@ helpFunction()
    echo -e "\t--CustomLoss \tCustom loss."
    echo -e "\t--CustomLossLos\tCustom Line of Sight loss."
    echo -e "\t--CustomLossNlos \tCustom Non Line of Sight loss."
+   echo -e "\t--amcAlgo \tChoose the algorithm to be used in the AMC."
    exit 1 # Exit script after printing help
 }
 
@@ -127,6 +129,7 @@ do
             outdir-print ) print_outfolder=1;;
             serverDelay | serverdelay) serverDelay="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
             simTime | simtime ) simTime="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
+            amcAlgo | amcalgo ) amcAlgo="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
             protocol ) multit="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));
                      if [ $t = 1 ]; then
                         tcpTypeId1=$multit;
@@ -524,6 +527,7 @@ if [ "$useAI" == "0" ]; then
       --CustomLoss=`echo $CustomLoss`
       --CustomLossLos=`echo $CustomLossLos`
       --CustomLossNlos=`echo $CustomLossNlos`
+      --amcAlgo=`echo $amcAlgo`
       " --cwd "$outfolder/$bkfolder" --no-build
 else
    # $ns3home/ns3 run "`echo ccaperf-exec`
@@ -567,6 +571,7 @@ else
       --CustomLoss=`echo $CustomLoss`\
       --CustomLossLos=`echo $CustomLossLos`\
       --CustomLossNlos=`echo $CustomLossNlos`\
+      --amcAlgo=`echo $amcAlgo`\
       --cwd "$outfolder/$bkfolder" # It never builds (!)
 fi
 

@@ -1,21 +1,7 @@
-parameters=(
-" --verbose --simtime 70 --path circle --protocol TcpCubic --protocol UDP --protocol QUIC --ueNumber 1 --ueNumber 1 --ueNumber 1 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b WBT -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpCubic --protocol UDP --protocol QUIC --ueNumber 1 --ueNumber 1 --ueNumber 1 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 400 --customLoss  0 -b WBT -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpBbr --protocol UDP --protocol QUIC --ueNumber 1 --ueNumber 1 --ueNumber 1 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b WBT -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpBbr --protocol UDP --protocol QUIC --ueNumber 1 --ueNumber 1 --ueNumber 1 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 400 --customLoss  0 -b WBT -b WBT -b WBT"
-
-" --verbose --simtime 70 --path circle --protocol UDP --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol UDP --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 400 --customLoss  0 -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpCubic --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpCubic --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 400 --customLoss  0 -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpBbr --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b WBT -b WBT"
-" --verbose --simtime 70 --path circle --protocol TcpBbr  --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 400 --customLoss  0 -b WBT -b WBT"
-
-" --verbose --simtime 70 --path circle --protocol QUIC --ueNumber 3 --rlcBuffer 200 --position 20 --speed 1 --dataRate 600 --customLoss  0 -b WBT"
-" --verbose --simtime 70 --path circle --protocol QUIC --ueNumber 3 --rlcBuffer 200 --position 20 --speed 1 --dataRate 400 --customLoss  0 -b WBT"
-
-" --verbose --simtime 70 --path circle --protocol QUIC --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b VBR1 -b WBT"
-" --verbose --simtime 70 --path circle --protocol QUIC --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b VBR2 -b WBT"
-" --verbose --simtime 70 --path circle --protocol QUIC --protocol QUIC --ueNumber 1 --ueNumber 2 --rlcBuffer 200 --position 20 --position 20 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b CBR -b WBT"
-
+parameters=
+(
+"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 1"
+"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 2"
+"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 3"
+"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 4"
 )
