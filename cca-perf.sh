@@ -460,7 +460,7 @@ then
 fi
 
 options="`if [ $verbose -eq 1 ]; then echo "--verbose"; fi` `if [ $nobuild -eq 1 ]; then echo "--no-build"; fi`"
-printf "\nRunning ${TXT_MAGENTA}$0 ${options} --serverDelay ${serverDelay} -t ${tcpTypeId1} -t ${tcpTypeId2} -t ${tcpTypeId3} -r ${rlcBufferPer} -s ${serverType} -i ${iniTime} -e ${endTime} -n ${ueN1} -n ${ueN2} -n ${ueN3} -x ${xUE1} -x ${xUE2} -x ${xUE3} -c ${myscenario} -a ${useAI} -q ${aqm_enqueue} -y ${aqm_dequeue} -d ${dataRate1} -d ${dataRate2} -d ${dataRate3} -g ${tag}${TXT_CLEAR}\n"
+printf "\nRunning ${TXT_MAGENTA}$0 ${options} --serverDelay ${serverDelay} -t ${tcpTypeId1} -t ${tcpTypeId2} -t ${tcpTypeId3} -r ${rlcBufferPer} -s ${serverType} -i ${iniTime} -e ${endTime} -n ${ueN1} -n ${ueN2} -n ${ueN3} -x ${xUE1} -x ${xUE2} -x ${xUE3} -c ${myscenario} -a ${useAI} -q ${aqm_enqueue} -y ${aqm_dequeue} -d ${dataRate1} -d ${dataRate2} -d ${dataRate3} -g ${tag} -amcAlgo ${amcAlgo} ${TXT_CLEAR}\n"
 
 printf "\ttcpTypeId: ${TXT_MAGENTA}${tcpTypeId1}-${tcpTypeId2}-${tcpTypeId3}${TXT_CLEAR}\n"
 printf "\t#UEs:      ${TXT_MAGENTA}${ueN1}-${ueN2}-${ueN3}${TXT_CLEAR}\n"
@@ -608,11 +608,11 @@ if [ "$delete_txt" == "1" ]; then
    rm $outfolder/$bkfolder/*.txt
 fi
 
-echo
-printf "Compressing files\n"
-echo
-gzip $outfolder/$bkfolder/*.txt &
-gzip $outfolder/$bkfolder/*.csv &
+# echo
+# printf "Compressing files\n"
+# echo
+# gzip $outfolder/$bkfolder/*.txt &
+# gzip $outfolder/$bkfolder/*.csv &
 
 __full_path=$outfolder/$bkfolder
 # source cca-sim-backup.sh $outfolder/$bkfolder

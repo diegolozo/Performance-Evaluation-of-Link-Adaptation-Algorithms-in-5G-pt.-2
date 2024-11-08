@@ -1,7 +1,6 @@
-parameters=
-(
-"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 1"
-"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 2"
-"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 3"
-"--simTime 5 --verbose -c 3 -p 0 -n 2 --amcAlgo 4"
+parameters=(
+" --verbose --simtime 5 --path circle --protocol TcpCubic --protocol UDP --protocol UDP --ueNumber 1 --ueNumber 0 --ueNumber 0 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b CBR -b CBR -b CBR --amcAlgo 1"
+" --verbose --simtime 5 --path circle --protocol TcpCubic --protocol UDP --protocol UDP --ueNumber 1 --ueNumber 0 --ueNumber 0 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b CBR -b CBR -b CBR --amcAlgo 2"
+" --verbose --simtime 5 --path circle --protocol TcpCubic --protocol UDP --protocol UDP --ueNumber 1 --ueNumber 0 --ueNumber 0 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b CBR -b CBR -b CBR --amcAlgo 3"
+" --verbose --simtime 5 --path circle --protocol TcpCubic --protocol UDP --protocol UDP --ueNumber 1 --ueNumber 0 --ueNumber 0 --rlcBuffer 200 --position 20 --position 20 --position 20 --speed 1 --speed 1 --speed 1 --dataRate 600 --customLoss  0 -b CBR -b CBR -b CBR --amcAlgo 4"
 )
