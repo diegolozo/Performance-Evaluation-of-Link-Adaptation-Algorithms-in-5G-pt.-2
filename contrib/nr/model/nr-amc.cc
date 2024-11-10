@@ -17,12 +17,15 @@
 #include <ns3/math.h>
 #include <ns3/nr-spectrum-value-helper.h>
 #include <ns3/uinteger.h>
+#include "ns3/core-module.h"
 
 namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("NrAmc");
 NS_OBJECT_ENSURE_REGISTERED(NrAmc);
+
+uint16_t NrAmc::s_instanceNumber = 0;
 
 NrAmc::NrAmc()
 {
@@ -75,6 +78,57 @@ NrAmc::GetTypeId()
                           MakeTypeIdChecker())
             .AddConstructor<NrAmc>();
     return tid;
+}
+
+void NrAmc::SetCustomFlags(char _cusflags) {
+    m_customFlags = _cusflags;
+    
+    if (_cusflags & IS_GNODEB) {
+        m_my_num = s_instanceNumber;
+        s_instanceNumber++;
+    }
+
+    NS_LOG_DEBUG("[NrAmc] Set custom flag: " << +m_customFlags);
+}
+
+double NrAmc::UpdateBlerTarget(double sinrEff)
+{
+
+    // If the buffer is not from a gNodeB, dont apply an AQM
+    if (m_customFlags != IS_GNODEB) {
+        NS_LOG_DEBUG("FLAG OF THE NOT GNODEB BUFFER" << +m_customFlags << " Its number is: " << m_my_num);
+        return false;
+    }
+
+    NS_LOG_DEBUG("NUM OF THE GNODEB BUFFER" << +m_my_num);
+
+    BooleanValue useAI;
+    
+    if (GlobalValue::GetValueByNameFailSafe("useAI", useAI)) {
+        if (!useAI) {
+            return false;
+        }
+    } else {
+        NS_ABORT_MSG("useAI GlobalValue not found!");
+    }
+
+    auto interface = Ns3AiMsgInterface::Get();
+    Ns3AiMsgInterfaceImpl<NrAmc::dataToSend, NrAmc::dataToRecv>* msgInterface =
+        interface->GetInterface<NrAmc::dataToSend, NrAmc::dataToRecv>();
+
+    msgInterface->CppSendBegin();
+    msgInterface->GetCpp2PyVector()->at(m_my_num).sinrEffective = sinrEff;
+
+    msgInterface->CppSendEnd();
+
+    msgInterface->CppRecvBegin();
+    double blerTarget = msgInterface->GetPy2CppVector()->at(m_my_num).blerTarget;
+    msgInterface->CppRecvEnd();
+
+    // NS_LOG_DEBUG("[ Buffer " << this << "] Decided to " << _decision_char << " a packet." << std::endl);
+    NS_LOG_DEBUG("El valor del sinrEff era " << sinrEff << " y el BLER Target quedó en " << blerTarget << std::endl);
+
+    return blerTarget;
 }
 
 TypeId

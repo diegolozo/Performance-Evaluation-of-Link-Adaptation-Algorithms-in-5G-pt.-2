@@ -9,6 +9,9 @@
 
 #include "nr-error-model.h"
 #include "nr-phy-mac-common.h"
+// AGDT: Added for ML integration
+#include <ns3/ai-module.h>
+#include <fstream>
 
 namespace ns3
 {
@@ -67,6 +70,40 @@ class NrAmc : public Object
      * will be done keeping in consideration that the requests refers to
      * DL transmissions.
      */
+
+    // AGDT Type of data to be saved in ns3 ai vectos
+    struct dataToSend {
+      double sinrEffective;
+    };
+
+    struct dataToRecv {
+      double blerTarget;
+    };
+
+    typedef enum {
+      IS_GNODEB = 0b1,
+      IS_UE = 0b10
+    } OR_FLAGS;
+
+  private:
+
+    // AGDT
+    static uint16_t s_instanceNumber;
+    uint16_t m_my_num;
+    double m_emptyingTime; // In seconds
+    bool m_buffer_full;
+    bool m_is_fragmented;
+    char m_customFlags;
+
+    uint32_t m_maxTxBufferSize; ///< maximum transmit buffer status
+    uint32_t m_txBufferSize;    ///< transmit buffer size
+
+    /// AGDT Update buffer status
+    double UpdateBlerTarget(double sinrEff);
+    
+    // Set custom flags
+    void SetCustomFlags(char _cusflags);
+
     void SetDlMode();
 
     /**
