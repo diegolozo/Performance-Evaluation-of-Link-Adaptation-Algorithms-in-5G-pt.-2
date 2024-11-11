@@ -29,11 +29,16 @@ uint16_t NrAmc::s_instanceNumber = 0;
 
 NrAmc::NrAmc()
 {
+    std::cout << "CREANDO NR-AMC" << std::endl;
+    std::cout << "--------------" << std::endl;
+    m_my_num = s_instanceNumber;
+    s_instanceNumber++;
     NS_LOG_INFO("Initialize AMC module");
 }
 
 NrAmc::~NrAmc()
 {
+    s_instanceNumber--;
 }
 
 void

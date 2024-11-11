@@ -16,12 +16,16 @@ AMC_OPTS = {
       "hybrid_bler_target": 4
 }
 
+# AMC_FUNC = {
+#       "lena_default": "LENA_DEFAULT",
+#       "probe_cqi": "PROBE_CQI",
+#       "new_bler_target": "NEW_BLER_TARGET",
+#       "exp_bler_target": "EXP_BLER_TARGET",
+#       "hybrid_bler_target": "Hybrid_Bler"
+# }
+
 AMC_FUNC = {
-      "lena_default": "LENA_DEFAULT",
-      "probe_cqi": "PROBE_CQI",
-      "new_bler_target": "NEW_BLER_TARGET",
-      "exp_bler_target": "EXP_BLER_TARGET",
-      "hybrid_bler_target": "Hybrid_Bler"
+      "hybrid_bler_target": Hybrid_Bler
 }
 
 def argument_parser():
@@ -95,7 +99,7 @@ def main(amc:str, folder: str, exp_args: dict):
                 msgInterface.GetPy2CppVector()[i].bler_target = amc_manager(i, 
                                                                             sinr_eff=_sinr_eff,
                                                                             simulation_time=_simulation_time)
-                vector_data.just_called = False
+                # vector_data.just_called = False
                 
             msgInterface.PyRecvEnd()
             msgInterface.PySendEnd()

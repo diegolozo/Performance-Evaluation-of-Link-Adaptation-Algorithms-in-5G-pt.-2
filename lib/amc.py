@@ -8,13 +8,11 @@ import os
 class AmcManager:
 
     def __init__(self, amc_type,folder):
-      print(f"VOY A CREAR LA CLASE {amc_type}")
       self.amc_type = amc_type # exp, hybrid, moving average
       self.flow_dict = dict()
       self.folder = folder
 
     def __call__(self, flow_id, *args: Any, **kwds: Any) -> bool:
-      print(f"EJECTUANDO LA CLASE {self.amc_type}")
       if flow_id not in self.flow_dict.keys():
         kwds["__log_folder"] = self.folder
         self.flow_dict[flow_id] = self.amc_type(flow_id,*args, **kwds)
@@ -46,7 +44,6 @@ class AmcLog:
 class Hybrid_Bler:
 
     def __init__(self,flow_id,*args: Any, **kwds: Any) -> None:
-      print("AMC.PY: CREE UN HYBRID_BLER")
       self.SINR_EFF_DB = kwds['sinr_eff']
       self.ALPHA = 0.3
       self.BETA = -0.08
@@ -66,7 +63,6 @@ class Hybrid_Bler:
                               sinr_eff = self.SINR_EFF_DB,
                               bler_target = bler_target
                               )      
-      print("AMC.PY: CALCULADO EL BLER TARGET")
       return bler_target
 
 
