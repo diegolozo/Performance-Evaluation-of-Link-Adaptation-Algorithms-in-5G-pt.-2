@@ -80,33 +80,13 @@ NrAmc::GetTypeId()
     return tid;
 }
 
-void NrAmc::SetCustomFlags(char _cusflags) {
-    m_customFlags = _cusflags;
-    
-    if (_cusflags & IS_GNODEB) {
-        m_my_num = s_instanceNumber;
-        s_instanceNumber++;
-    }
-
-    NS_LOG_DEBUG("[NrAmc] Set custom flag: " << +m_customFlags);
-}
-
-double NrAmc::UpdateBlerTarget(double sinrEff)
+double NrAmc::UpdateBlerTarget(double sinrEff) const
 {
-
-    // If the buffer is not from a gNodeB, dont apply an AQM
-    if (m_customFlags != IS_GNODEB) {
-        NS_LOG_DEBUG("FLAG OF THE NOT GNODEB BUFFER" << +m_customFlags << " Its number is: " << m_my_num);
-        return false;
-    }
-
-    NS_LOG_DEBUG("NUM OF THE GNODEB BUFFER" << +m_my_num);
-
     BooleanValue useAI;
     
     if (GlobalValue::GetValueByNameFailSafe("useAI", useAI)) {
         if (!useAI) {
-            return false;
+            return 0;
         }
     } else {
         NS_ABORT_MSG("useAI GlobalValue not found!");
@@ -117,6 +97,7 @@ double NrAmc::UpdateBlerTarget(double sinrEff)
         interface->GetInterface<NrAmc::dataToSend, NrAmc::dataToRecv>();
 
     msgInterface->CppSendBegin();
+    msgInterface->GetCpp2PyVector()->at(m_my_num).simulationTime = ns3::Simulator::Now().GetSeconds();
     msgInterface->GetCpp2PyVector()->at(m_my_num).sinrEffective = sinrEff;
 
     msgInterface->CppSendEnd();
@@ -623,15 +604,16 @@ NrAmc::HybridBlerCqiAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const
 
         double blerTarget;
 
-        if (sinr_eff_db <= 10)
-        {
-            blerTarget = 0.3*exp(-0.08*sinr_eff_db);
-            NS_LOG_DEBUG("Para el SINReff " << sinr_eff_db << " [dB], se tiene exp_blerTarget = " << blerTarget);
-        }
-        else
-        {
-            blerTarget = m_blerTarget;
-        }
+        // if (sinr_eff_db <= 10)
+        // {
+        //     blerTarget = 0.3*exp(-0.08*sinr_eff_db);
+        //     NS_LOG_DEBUG("Para el SINReff " << sinr_eff_db << " [dB], se tiene exp_blerTarget = " << blerTarget);
+        // }
+        // else
+        // {
+        //     blerTarget = m_blerTarget;
+        // }
+        blerTarget = UpdateBlerTarget(sinr_eff_db);
         
 
         if (output->m_tbler > blerTarget)

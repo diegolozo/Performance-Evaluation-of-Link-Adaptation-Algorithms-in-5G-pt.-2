@@ -59,7 +59,7 @@ serverDelay=4
 CustomLoss=0
 CustomLossLos=0
 CustomLossNlos=0
-amcAlgo=0
+amc=0
 
 helpFunction()
 {
@@ -101,7 +101,7 @@ helpFunction()
    echo -e "\t--CustomLoss \tCustom loss."
    echo -e "\t--CustomLossLos\tCustom Line of Sight loss."
    echo -e "\t--CustomLossNlos \tCustom Non Line of Sight loss."
-   echo -e "\t--amcAlgo \tChoose the algorithm to be used in the AMC."
+   echo -e "\t--amc \tChoose the algorithm to be used in the AMC."
    exit 1 # Exit script after printing help
 }
 
@@ -129,7 +129,7 @@ do
             outdir-print ) print_outfolder=1;;
             serverDelay | serverdelay) serverDelay="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
             simTime | simtime ) simTime="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
-            amcAlgo | amcalgo ) amcAlgo="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
+            amc | amc ) amc="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));;
             protocol ) multit="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ));
                      if [ $t = 1 ]; then
                         tcpTypeId1=$multit;
@@ -329,14 +329,14 @@ if [ "$useAI" != "0" ] && [ "$useAI" != "1" ]; then
 fi
 
 # If both AQM are dummy, then do not use python to execute the experiment
-if [ "$aqm_enqueue" == "dummy" ] && [ "$aqm_dequeue" == "dummy" ]; then
-   useAI=0
+# if [ "$aqm_enqueue" == "dummy" ] && [ "$aqm_dequeue" == "dummy" ]; then
+#    useAI=0
 
-   if [ "$print_outfolder" == "0" ]; then
-      echo "Use AI option disabled, both AQM were dummy.";
-   fi
+#    if [ "$print_outfolder" == "0" ]; then
+#       echo "Use AI option disabled, both AQM were dummy.";
+#    fi
 
-fi
+# fi
 
 if [ "$myscenario" != "0" ] && [ "$myscenario" != "3" ]; then
    echo "Scenario \"$myscenario\" no available";
@@ -460,7 +460,7 @@ then
 fi
 
 options="`if [ $verbose -eq 1 ]; then echo "--verbose"; fi` `if [ $nobuild -eq 1 ]; then echo "--no-build"; fi`"
-printf "\nRunning ${TXT_MAGENTA}$0 ${options} --serverDelay ${serverDelay} -t ${tcpTypeId1} -t ${tcpTypeId2} -t ${tcpTypeId3} -r ${rlcBufferPer} -s ${serverType} -i ${iniTime} -e ${endTime} -n ${ueN1} -n ${ueN2} -n ${ueN3} -x ${xUE1} -x ${xUE2} -x ${xUE3} -c ${myscenario} -a ${useAI} -q ${aqm_enqueue} -y ${aqm_dequeue} -d ${dataRate1} -d ${dataRate2} -d ${dataRate3} -g ${tag} -amcAlgo ${amcAlgo} ${TXT_CLEAR}\n"
+printf "\nRunning ${TXT_MAGENTA}$0 ${options} --serverDelay ${serverDelay} -t ${tcpTypeId1} -t ${tcpTypeId2} -t ${tcpTypeId3} -r ${rlcBufferPer} -s ${serverType} -i ${iniTime} -e ${endTime} -n ${ueN1} -n ${ueN2} -n ${ueN3} -x ${xUE1} -x ${xUE2} -x ${xUE3} -c ${myscenario} -a ${useAI} -q ${aqm_enqueue} -y ${aqm_dequeue} -d ${dataRate1} -d ${dataRate2} -d ${dataRate3} -g ${tag} -amc ${amc} ${TXT_CLEAR}\n"
 
 printf "\ttcpTypeId: ${TXT_MAGENTA}${tcpTypeId1}-${tcpTypeId2}-${tcpTypeId3}${TXT_CLEAR}\n"
 printf "\t#UEs:      ${TXT_MAGENTA}${ueN1}-${ueN2}-${ueN3}${TXT_CLEAR}\n"
@@ -487,6 +487,8 @@ cp $me $outfolder/$bkfolder/$me.txt
 cp ${myhome}/${myapp}.cc $outfolder/$bkfolder/${myapp}.cc.txt
 cp packet-error-rate.sh $outfolder/$bkfolder/packet-error-rate.sh.txt
 cp cca-perf-graph.py $outfolder/$bkfolder/cca-perf-graph.py.txt
+
+echo "El valor de useAI es ${useAI}"
 
 if [ "$useAI" == "0" ]; then
    $ns3home/ns3 run "`echo ccaperf-exec`
@@ -527,7 +529,7 @@ if [ "$useAI" == "0" ]; then
       --CustomLoss=`echo $CustomLoss`
       --CustomLossLos=`echo $CustomLossLos`
       --CustomLossNlos=`echo $CustomLossNlos`
-      --amcAlgo=`echo $amcAlgo`
+      --amcAlgo=`echo $amc`
       " --cwd "$outfolder/$bkfolder" --no-build
 else
    # $ns3home/ns3 run "`echo ccaperf-exec`
@@ -563,15 +565,13 @@ else
       --useAI=`echo $useAI`\
       --useECN=`echo $useECN`\
       --verbose=`echo $verbose`\
-      --enqueue `echo $aqm_enqueue`\
-      --dequeue `echo $aqm_dequeue`\
       --rng=`echo $rng`\
       --logging=`echo $logging`\
       --circlepath=`echo $circlepath`\
       --CustomLoss=`echo $CustomLoss`\
       --CustomLossLos=`echo $CustomLossLos`\
       --CustomLossNlos=`echo $CustomLossNlos`\
-      --amcAlgo=`echo $amcAlgo`\
+      --amc `echo $amc`\
       --cwd "$outfolder/$bkfolder" # It never builds (!)
 fi
 

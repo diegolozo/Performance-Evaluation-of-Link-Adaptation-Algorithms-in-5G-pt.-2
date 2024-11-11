@@ -63,16 +63,11 @@ class NrAmc : public Object
      */
     ~NrAmc() override;
 
-    /**
-     * \brief Set the object to be in "DL" mode.
-     *
-     * In this mode, all the requests made to the underlying error model
-     * will be done keeping in consideration that the requests refers to
-     * DL transmissions.
-     */
+
 
     // AGDT Type of data to be saved in ns3 ai vectos
     struct dataToSend {
+      double simulationTime;
       double sinrEffective;
     };
 
@@ -80,29 +75,21 @@ class NrAmc : public Object
       double blerTarget;
     };
 
+    /// AGDT Update Bler Target
+    double UpdateBlerTarget(double sinrEff) const;
+
     typedef enum {
       IS_GNODEB = 0b1,
       IS_UE = 0b10
     } OR_FLAGS;
 
-  private:
-
-    // AGDT
-    static uint16_t s_instanceNumber;
-    uint16_t m_my_num;
-    double m_emptyingTime; // In seconds
-    bool m_buffer_full;
-    bool m_is_fragmented;
-    char m_customFlags;
-
-    uint32_t m_maxTxBufferSize; ///< maximum transmit buffer status
-    uint32_t m_txBufferSize;    ///< transmit buffer size
-
-    /// AGDT Update buffer status
-    double UpdateBlerTarget(double sinrEff);
-    
-    // Set custom flags
-    void SetCustomFlags(char _cusflags);
+    /**
+     * \brief Set the object to be in "DL" mode.
+     *
+     * In this mode, all the requests made to the underlying error model
+     * will be done keeping in consideration that the requests refers to
+     * DL transmissions.
+     */
 
     void SetDlMode();
 
@@ -306,6 +293,17 @@ class NrAmc : public Object
                    double b) const;
                    
   private:
+
+    // AGDT
+    static uint16_t s_instanceNumber;
+    uint16_t m_my_num;
+    double m_emptyingTime; // In seconds
+    bool m_buffer_full;
+    bool m_is_fragmented;
+
+    uint32_t m_maxTxBufferSize; ///< maximum transmit buffer status
+    uint32_t m_txBufferSize;    ///< transmit buffer size
+
     /// \brief Find maximum MCS supported for this channel, using the Shannon model
     /// \param sinrMat the MIMO SINR matrix (rank * nRbs)
     /// \return the maximum MCS

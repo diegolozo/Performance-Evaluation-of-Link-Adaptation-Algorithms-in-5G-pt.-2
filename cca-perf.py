@@ -6,16 +6,32 @@ import traceback
 import argparse
 from time import localtime, strftime  # For the time being
 
-from lib.aqm import AqmManager, Red, CoDel, Dummy, Adaptive_Red
+from lib.amc import AmcManager, Hybrid_Bler
 
+AMC_OPTS = {
+      "lena_default": 0,
+      "probe_cqi": 1,
+      "new_bler_target": 2,
+      "exp_bler_target": 3,
+      "hybrid_bler_target": 4
+}
+
+AMC_FUNC = {
+      "lena_default": "LENA_DEFAULT",
+      "probe_cqi": "PROBE_CQI",
+      "new_bler_target": "NEW_BLER_TARGET",
+      "exp_bler_target": "EXP_BLER_TARGET",
+      "hybrid_bler_target": "Hybrid_Bler"
+}
 
 def argument_parser():
     parser = argparse.ArgumentParser(
         prog=os.path.basename(__file__),
-        description="",
+        description="Does stuff in contrib/nr/model/nr-amc.cc",
         epilog="Thanks to ns3-ai team for their work. Made by AG-DT."
     )
 
+    parser.add_argument("--amc", default="Original", help="")
 
     parser.add_argument("--cwd", default=os.getcwd(), help="Directory where the experiment results will be saved.")
     args, unknown_args = parser.parse_known_args()
@@ -30,10 +46,13 @@ def argument_parser():
         elif len(_av) == 2:
             experiment_args_dict[_av[0]] = _av[1]
 
+    amc_number=args.amc.lower()
+    experiment_args_dict["amcAlgo"] = AMC_OPTS[amc_number]
+    experiment_args_dict.pop("amc", None)
 
     return args, experiment_args_dict
 
-def main(folder: str, exp_args: dict):
+def main(amc:str, folder: str, exp_args: dict):
     VECTOR_SIZE = 32  # This is a complication | We would need to know the number of flows beforehand | Can we set it on the fly?
     NS3_PATH = os.getcwd().split("scratch")[0]  # Let's set it dynamically
     # EXEC_SETTINGS = {"useAI": True, "verbose": True}  # " --frequency=xx"
@@ -43,7 +62,12 @@ def main(folder: str, exp_args: dict):
     SEGMENT_HASH = str(hash(folder))
     exp_args["aiSegmentName"] = SEGMENT_HASH
 
+    amc_final=args.amc.lower()
 
+    print(f"El valor de amc recibido es: {amc_final}" )
+    print(f"El valor de amc a usar es: {AMC_FUNC[amc_final]}")
+
+    amc_manager = AmcManager(AMC_FUNC[amc_final], folder)
 
     if not os.path.isdir(folder):
         os.mkdir(folder)
@@ -67,7 +91,10 @@ def main(folder: str, exp_args: dict):
                 # calculate the sums
                 vector_data = msgInterface.GetCpp2PyVector()[i]
                 _sinr_eff = vector_data.sinr_eff
-                msgInterface.GetPy2CppVector()[i].drop_packet = enqueue_manager(i, sinr_eff=_sinr_eff)
+                _simulation_time = vector_data.simulation_time
+                msgInterface.GetPy2CppVector()[i].bler_target = amc_manager(i, 
+                                                                            sinr_eff=_sinr_eff,
+                                                                            simulation_time=_simulation_time)
                 vector_data.just_called = False
                 
             msgInterface.PyRecvEnd()
@@ -89,4 +116,4 @@ def main(folder: str, exp_args: dict):
 
 if __name__ == "__main__":
     args, exp_args = argument_parser()
-    main(args.enqueue, args.dequeue, args.cwd, exp_args)
+    main(args.amc, args.cwd, exp_args)

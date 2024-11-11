@@ -15,7 +15,8 @@ PYBIND11_MODULE(cca_perf_py, m)
 {
     py::class_<ns3::NrAmc::dataToSend>(m, "bufferData")
         .def(py::init<>())
-        .def_readwrite("sinr_eff", &ns3::NrAmc::dataToSend::sinrEffective);;
+        .def_readwrite("sinr_eff", &ns3::NrAmc::dataToSend::sinrEffective)
+        .def_readwrite("simulation_time", &ns3::NrAmc::dataToSend::simulationTime);;
 
 
     py::class_<ns3::NrAmc::dataToRecv>(m, "bufferDecision")
