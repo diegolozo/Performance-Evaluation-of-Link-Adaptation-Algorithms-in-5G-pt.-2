@@ -59,7 +59,7 @@ serverDelay=4
 CustomLoss=0
 CustomLossLos=0
 CustomLossNlos=0
-amc=0
+amc=4
 
 helpFunction()
 {
@@ -571,10 +571,9 @@ else
       --CustomLoss=`echo $CustomLoss`\
       --CustomLossLos=`echo $CustomLossLos`\
       --CustomLossNlos=`echo $CustomLossNlos`\
-      --amc `echo $amc`\
       --cwd "$outfolder/$bkfolder" # It never builds (!)
 fi
-
+      # --amc `echo $amc`\
 exit_status=$?
 
 # In case the simulation was aborted, exit and print code error.

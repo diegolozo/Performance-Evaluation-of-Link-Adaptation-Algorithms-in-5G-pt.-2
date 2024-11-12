@@ -32,13 +32,13 @@ NrAmc::NrAmc()
     std::cout << "CREANDO NR-AMC" << std::endl;
     std::cout << "--------------" << std::endl;
     m_my_num = s_instanceNumber;
-    s_instanceNumber++;
+    // s_instanceNumber++;
     NS_LOG_INFO("Initialize AMC module");
 }
 
 NrAmc::~NrAmc()
 {
-    s_instanceNumber--;
+    // s_instanceNumber--;
 }
 
 void
@@ -618,8 +618,8 @@ NrAmc::HybridBlerCqiAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const
         // {
         //     blerTarget = m_blerTarget;
         // }
+
         blerTarget = UpdateBlerTarget(sinr_eff_db);
-        
 
         if (output->m_tbler > blerTarget)
         {

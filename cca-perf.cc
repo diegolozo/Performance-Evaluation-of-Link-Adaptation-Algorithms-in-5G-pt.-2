@@ -374,8 +374,8 @@ int main(int argc, char* argv[]) {
         interface->SetUseVector(true);
         interface->SetHandleFinish(true);
         interface->SetNames(aiSegmentName, "My Cpp to Python Msg", "My Python to Cpp Msg", "My Lockable");
-        Ns3AiMsgInterfaceImpl<LteRlcUm::dataToSend, LteRlcUm::dataToRecv>* msgInterface =
-            interface->GetInterface<LteRlcUm::dataToSend, LteRlcUm::dataToRecv>(); // Singleton
+        Ns3AiMsgInterfaceImpl<NrAmc::dataToSend, NrAmc::dataToRecv>* msgInterface =
+            interface->GetInterface<NrAmc::dataToSend, NrAmc::dataToRecv>(); // Singleton
 
         assert(msgInterface->GetCpp2PyVector()->size() == VECTOR_SIZE);
 

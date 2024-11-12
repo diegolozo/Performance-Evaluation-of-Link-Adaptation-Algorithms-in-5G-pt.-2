@@ -35,7 +35,7 @@ def argument_parser():
         epilog="Thanks to ns3-ai team for their work. Made by AG-DT."
     )
 
-    parser.add_argument("--amc", default="Original", help="")
+    parser.add_argument("--amc", default="hybrid_bler_target", help="")
 
     parser.add_argument("--cwd", default=os.getcwd(), help="Directory where the experiment results will be saved.")
     args, unknown_args = parser.parse_known_args()
@@ -80,7 +80,6 @@ def main(amc:str, folder: str, exp_args: dict):
                     handleFinish=True, useVector=True, vectorSize=VECTOR_SIZE, segName=SEGMENT_HASH)
     msgInterface = exp.run(show_output=True, setting=exp_args)
     print(f"NS3AI Memory space name: {SEGMENT_HASH}", flush=True)
-
     try:
 
         while True:
@@ -91,14 +90,13 @@ def main(amc:str, folder: str, exp_args: dict):
 
             # send to C++ side
             msgInterface.PySendBegin()
-            for i in range(len(msgInterface.GetCpp2PyVector())):
+            # for i in range(len(msgInterface.GetCpp2PyVector())):
                 # calculate the sums
-                vector_data = msgInterface.GetCpp2PyVector()[i]
-                _sinr_eff = vector_data.sinr_eff
-                _simulation_time = vector_data.simulation_time
-                msgInterface.GetPy2CppVector()[i].bler_target = amc_manager(i, 
-                                                                            sinr_eff=_sinr_eff,
-                                                                            simulation_time=_simulation_time)
+            vector_data = msgInterface.GetCpp2PyVector()[0]
+            _sinr_eff = vector_data.sinr_eff
+            _simulation_time = vector_data.simulation_time
+            bler = amc_manager(0,sinr_eff=_sinr_eff,simulation_time=_simulation_time)
+            msgInterface.GetPy2CppVector()[0].bler_target = bler
                 # vector_data.just_called = False
                 
             msgInterface.PyRecvEnd()
