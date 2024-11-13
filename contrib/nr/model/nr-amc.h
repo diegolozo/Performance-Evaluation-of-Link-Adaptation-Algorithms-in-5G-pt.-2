@@ -235,6 +235,7 @@ class NrAmc : public Object
     uint8_t OriginalCqiAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const;
     uint8_t ExpBlerCqiAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const;
     uint8_t HybridBlerCqiAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const;
+    uint8_t PythonBlerTargetAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const;
 
     /**
      * This algorithm follows the same procedure as the original algorithm to obtain
@@ -252,7 +253,8 @@ class NrAmc : public Object
       PROBE_CQI,
       NEW_BLER_TARGET,
       EXP_BLER_TARGET,
-      HYBRID_BLER_TARGET
+      HYBRID_BLER_TARGET,
+      PYTHON_BLER_TARGET
     };
 
     /* Functions to change the CQI/BLER/MCS algorithm */

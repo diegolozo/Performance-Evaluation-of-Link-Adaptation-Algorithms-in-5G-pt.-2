@@ -71,7 +71,7 @@ helpFunction()
    echo -e "\noptions:"
    echo -e "\t--verbose \tPrint status and which part were executed."
    echo -e "\t--randstart \tAdd a random init time up to 1 [s] to each UE."
-   echo -e "\t--no_build \tDon't build the project (default off)."
+   echo -e "\t--no-build \tDon't build the project (default off)."
    echo -e "\t-a, --useAI \tUse a Python defined AQM (which includes an AI one). Remember to call it alongside --enqueue and/or --dequeue."
    echo -e "\t--useECN \tEnable Explicit Congestion Notification (ECN) (default off)."
    echo -e "\t-l, --logging \tEnable logging (default off)."
@@ -338,7 +338,7 @@ fi
 
 # fi
 
-if [ "$myscenario" != "0" ] && [ "$myscenario" != "3" ]; then
+if [ "$myscenario" != "0" ] && [ "$myscenario" != "2" ] && [ "$myscenario" != "3" ]; then
    echo "Scenario \"$myscenario\" no available";
    helpFunction
 fi

@@ -114,15 +114,13 @@ for param in "${parameters[@]}"; do
             param2="$param -z $mont_num"
         fi
 
-        if [ "${mont_num}" -gt 1 ]; then
-            param2="$param2 --rm-txt"
-        fi
-
         stdoutTxt=$basehome/out/$outdir/outputs/sim${mont_num}.txt
         _cmd="${basehome}/cca-perf.sh -o $outdir/SIM${mont_num} $param2 &> $stdoutTxt"
         _cmd="${_cmd}; if [ "'$('"find ${basehome}/out/$outdir -type f -name .still_running | wc -l) -eq 0 ]; then mv ${basehome}/out/$outdir ${basehome}/out/$final_outdir; fi"
         _cmds_to_run+=("${_cmd}")
         
+# Agregar al final de la línea 119 para que se haga el violin por cada PARAM, para luego juntarlos todos
+
         # (bash "cca-perf.sh" -o "$outdir/SIM${mont_num}" $param2 &> $stdoutTxt; printf "Done $sim_num ${TXT_RED}-${TXT_CLEAR} Exit Status $?\n") &
         # printf "[sim:${TXT_BLUE}${sim_num}${TXT_CLEAR} pid:${TXT_CYAN}$!${TXT_CLEAR}] Called ${TXT_GREEN}cca-perf.sh -o \"SIM${mont_num}\" ${param2} ${TXT_CLEAR}\n"
 

@@ -6,14 +6,15 @@ import traceback
 import argparse
 from time import localtime, strftime  # For the time being
 
-from lib.amc import AmcManager, Hybrid_Bler
+from lib.amc import AmcManager, Python_Bler
 
 AMC_OPTS = {
       "lena_default": 0,
       "probe_cqi": 1,
       "new_bler_target": 2,
       "exp_bler_target": 3,
-      "hybrid_bler_target": 4
+      "hybrid_bler_target": 4,
+      "python_bler_target": 5
 }
 
 # AMC_FUNC = {
@@ -25,7 +26,7 @@ AMC_OPTS = {
 # }
 
 AMC_FUNC = {
-      "hybrid_bler_target": Hybrid_Bler
+      "python_bler_target": Python_Bler
 }
 
 def argument_parser():
@@ -35,7 +36,7 @@ def argument_parser():
         epilog="Thanks to ns3-ai team for their work. Made by AG-DT."
     )
 
-    parser.add_argument("--amc", default="hybrid_bler_target", help="")
+    parser.add_argument("--amc", default="python_bler_target", help="")
 
     parser.add_argument("--cwd", default=os.getcwd(), help="Directory where the experiment results will be saved.")
     args, unknown_args = parser.parse_known_args()

@@ -316,7 +316,7 @@ int main(int argc, char* argv[]) {
     cmd.AddValue("stepFrequency", "Time between activations of Probe CQI in s", stepFrequency);
     cmd.AddValue("addNoise", "Add normal distributed noise to the simulation", addNoise);
     cmd.AddValue("blerTarget", "Set the bler target for the AMC (Default: 0.1)", blerTarget);
-    cmd.AddValue("amcAlgo", "Choose the algorithm to be used in the amc possible values:\n\t0:Original\n\t1:ProbeCqi\n\t2:NewBlerTarget\n\t3:ExpBlerTarget\n\t4:HybridBlerTarget\nCurrent value: ", amcAlgorithm);
+    cmd.AddValue("amcAlgo", "Choose the algorithm to be used in the amc possible values:\n\t0:Original\n\t1:ProbeCqi\n\t2:NewBlerTarget\n\t3:ExpBlerTarget\n\t4:HybridBlerTarget\n\t5:PythonBlerTarget\nCurrent value: ", amcAlgorithm);
     cmd.Parse(argc, argv);
 
     if (!g_useECN.SetValue(BooleanValue(useECN))) {
@@ -919,24 +919,24 @@ int main(int argc, char* argv[]) {
     double speedY = 0;               // in m/s for walking UT.
 
     ueActual = 0;
-    for (uint32_t g = 0; g < maxGroup; ++g )
-    {
-        if (verbose){ std::cout << "\t\tUEs group " << g + 1 << std::endl; }
-        for (uint32_t u = 0; u < ueNs[g] ; ++u)
-        {
-            UEposX[ueActual] = xUEs[g]+ (float) ueDistance * ueActual;
-            UEposY[ueActual] = yUE;
-            UEposZ[ueActual] = hUE ;
-            UEspeedX[ueActual] = speedXs[g];
-            UEspeedY[ueActual] = speedY;
+    // for (uint32_t g = 0; g < maxGroup; ++g )
+    // {
+    //     if (verbose){ std::cout << "\t\tUEs group " << g + 1 << std::endl; }
+    //     for (uint32_t u = 0; u < ueNs[g] ; ++u)
+    //     {
+    //         UEposX[ueActual] = xUEs[g]+ (float) ueDistance * ueActual;
+    //         UEposY[ueActual] = yUE;
+    //         UEposZ[ueActual] = hUE ;
+    //         UEspeedX[ueActual] = speedXs[g];
+    //         UEspeedY[ueActual] = speedY;
             
-            ueNodes.Get(ueActual)->GetObject<MobilityModel>()->SetPosition(Vector((float) UEposX[ueActual], (float) UEposY[ueActual] , (float) UEposZ[ueActual])); // (x, y, z) in m
-            ueNodes.Get(ueActual)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector( UEspeedX[ueActual], UEspeedY[ueActual],  0)); // move UE1 along the x axis
-            if (verbose){ std::cout << "\t\t- UE: " << ueActual + 1 << "\tPos:(" << UEposX[ueActual] << ", " << UEposY[ueActual] << ", " << UEposZ[ueActual] << ")\t Speed: (" << UEspeedX[u] << ", " << UEspeedY[u] <<", 0)" << std::endl; }
-            NS_LOG_INFO( "- UE: " << ueActual << "\t" << "Pos: "<<"(" << UEposX[ueActual] << ", " << UEposY[ueActual] << ", " << UEposZ[ueActual] << ")" << "\t" << "Speed: (" << UEspeedX[u] << ", " << UEspeedY[u] <<", 0)" );
-            ueActual++;
-        }
-    }
+    //         ueNodes.Get(ueActual)->GetObject<MobilityModel>()->SetPosition(Vector((float) UEposX[ueActual], (float) UEposY[ueActual] , (float) UEposZ[ueActual])); // (x, y, z) in m
+    //         ueNodes.Get(ueActual)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector( UEspeedX[ueActual], UEspeedY[ueActual],  0)); // move UE1 along the x axis
+    //         if (verbose){ std::cout << "\t\t- UE: " << ueActual + 1 << "\tPos:(" << UEposX[ueActual] << ", " << UEposY[ueActual] << ", " << UEposZ[ueActual] << ")\t Speed: (" << UEspeedX[u] << ", " << UEspeedY[u] <<", 0)" << std::endl; }
+    //         NS_LOG_INFO( "- UE: " << ueActual << "\t" << "Pos: "<<"(" << UEposX[ueActual] << ", " << UEposY[ueActual] << ", " << UEposZ[ueActual] << ")" << "\t" << "Speed: (" << UEspeedX[u] << ", " << UEspeedY[u] <<", 0)" );
+    //         ueActual++;
+    //     }
+    // }
 
     if (circlepath){
         if (verbose){ std::cout << "\t- CirclePath" << std::endl; }
@@ -1260,7 +1260,22 @@ int main(int argc, char* argv[]) {
     monitor->SetAttribute("PacketSizeBinWidth", DoubleValue(20));
     
 
-    
+    // /* REM HELPER, uncomment for use  */
+    // Ptr<NrRadioEnvironmentMapHelper> remHelper = CreateObject<NrRadioEnvironmentMapHelper>();
+    // remHelper->SetMinX(0);
+    // remHelper->SetMaxX(40);
+    // remHelper->SetResX(40);
+    // remHelper->SetMinY(0);
+    // remHelper->SetMaxY(170);
+    // remHelper->SetResY(170);
+    // if (phyDistro == 1)
+    //     remHelper->SetZ(1.5);
+    // else if (phyDistro == 2)
+    //     remHelper->SetZ(25.5);
+    // remHelper->SetSimTag("rem");
+
+    // remHelper->SetRemMode(NrRadioEnvironmentMapHelper::COVERAGE_AREA);
+    // remHelper->CreateRem(enbNetDev.Get(0), ueNetDev.Get(0), 0);
 
     if (verbose){
         std::cout << "Run Simulation"<< std::endl ;

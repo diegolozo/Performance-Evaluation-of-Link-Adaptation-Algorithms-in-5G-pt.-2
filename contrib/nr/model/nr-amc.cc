@@ -29,8 +29,6 @@ uint16_t NrAmc::s_instanceNumber = 0;
 
 NrAmc::NrAmc()
 {
-    std::cout << "CREANDO NR-AMC" << std::endl;
-    std::cout << "--------------" << std::endl;
     m_my_num = s_instanceNumber;
     // s_instanceNumber++;
     NS_LOG_INFO("Initialize AMC module");
@@ -277,6 +275,10 @@ NrAmc::CreateCqiFeedbackWbTdma(const SpectrumValue& sinr, uint8_t& mcs) const
         case HYBRID_BLER_TARGET:
             cqi = HybridBlerCqiAlgorithm(sinr, mcs);
             break;
+
+        case PYTHON_BLER_TARGET:
+            cqi = PythonBlerTargetAlgorithm(sinr, mcs);
+            break; 
 
         case LENA_DEFAULT:
         default:
@@ -609,16 +611,83 @@ NrAmc::HybridBlerCqiAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const
 
         double blerTarget;
 
-        // if (sinr_eff_db <= 10)
-        // {
-        //     blerTarget = 0.3*exp(-0.08*sinr_eff_db);
-        //     NS_LOG_DEBUG("Para el SINReff " << sinr_eff_db << " [dB], se tiene exp_blerTarget = " << blerTarget);
-        // }
-        // else
-        // {
-        //     blerTarget = m_blerTarget;
-        // }
+        if (sinr_eff_db <= 10)
+        {
+            blerTarget = 0.3*exp(-0.08*sinr_eff_db);
+            NS_LOG_DEBUG("Para el SINReff " << sinr_eff_db << " [dB], se tiene exp_blerTarget = " << blerTarget);
+        }
+        else
+        {
+            blerTarget = m_blerTarget;
+        }
 
+        if (output->m_tbler > blerTarget)
+        {
+            break;
+        }
+        mcs++;
+    }
+
+    if (mcs > 0)
+    {
+        mcs--;
+    }
+
+    if ((output->m_tbler > 0.1) && (mcs == 0))
+    {
+        cqi = 0;
+    }
+    else if (mcs == m_errorModel->GetMaxMcs())
+    {
+        cqi = 15; // all MCSs can guarantee the 10 % of BER
+    }
+    else
+    {
+        double s = m_errorModel->GetSpectralEfficiencyForMcs(mcs);
+        cqi = 0;
+        while ((cqi < 15) && (m_errorModel->GetSpectralEfficiencyForCqi(cqi + 1) <= s))
+        {
+            ++cqi;
+        }
+    }
+    NS_LOG_DEBUG(this << "\t MCS " << (uint16_t)mcs << "-> CQI " << +cqi);
+    return cqi;
+}
+
+uint8_t
+NrAmc::PythonBlerTargetAlgorithm(const SpectrumValue& sinr, uint8_t& mcs) const
+{
+    uint8_t cqi = 0;
+    Values::const_iterator it;
+
+    std::vector<int> rbMap;
+    int rbId = 0;
+    for (it = sinr.ConstValuesBegin(); it != sinr.ConstValuesEnd(); it++)
+    {
+        if (*it != 0.0)
+        {
+            rbMap.push_back(rbId);
+        }
+        rbId += 1;
+    }
+
+    mcs = 0;
+    Ptr<NrErrorModelOutput> output;
+
+    while (mcs <= m_errorModel->GetMaxMcs())
+    {
+        uint8_t rank = 1; // This function is SISO only
+        auto tbSize = CalculateTbSize(mcs, rank, rbMap.size());
+        output = m_errorModel->GetTbDecodificationStats(sinr,
+                                                        rbMap,
+                                                        tbSize,
+                                                        mcs,
+
+                                                        NrErrorModel::NrErrorModelHistory());
+        double sinr_eff = Get_SinrEff(sinr, rbMap, mcs, 0, rbMap.size());
+        double sinr_eff_db = 10 * log10(sinr_eff);
+        
+        double blerTarget;
         blerTarget = UpdateBlerTarget(sinr_eff_db);
 
         if (output->m_tbler > blerTarget)

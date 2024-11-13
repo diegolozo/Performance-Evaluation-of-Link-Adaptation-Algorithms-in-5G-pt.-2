@@ -240,50 +240,50 @@ def main():
     parts = find_zones(myhome)
     remove_graph(myhome)
     graph_mobility(myhome)
-    sdelay = graph_rlc_sdelay(myhome)
+    # sdelay = graph_rlc_sdelay(myhome)
     [sinr_control, sinr_data] = graph_SINR(myhome)
     # [cqi, bler ] = graph_CQI_BLER(myhome)
     path_loss = graph_path_loss(myhome)
     graph_thr_tx(myhome)
     graph_tcp(myhome)
-    rtt = graph_rtt(myhome)
-    rlc = graph_thr_rlcbuffer2(myhome)
-    drp = graph_thr_packetdrop(myhome)
-    jain_index = graph_jain_index(myhome)
-    calculate_metrics(myhome)
+    # rtt = graph_rtt(myhome)
+    # rlc = graph_thr_rlcbuffer2(myhome)
+    # drp = graph_thr_packetdrop(myhome)s
+    # jain_index = graph_jain_index(myhome)
+    # calculate_metrics(myhome)
     results = configparser.ConfigParser()
     results.read(myhome + 'results.ini')
 
-    res_summary = {'RTT'        : rtt,
-                   'BUFFER_RLC' : rlc,
-                   'SDELAY_RLC' : sdelay,
-                   'SINR_CONTROL' : sinr_control,
-                   'SINR_DATA'  : sinr_data,
-                #    'CQI'        : cqi,
-                #    'BLER'       : bler,
-                   'PATH_LOSS'  : path_loss,
-                   }
-    for key, value in res_summary.items():
-        for p in range(parts.shape[0]):
-            value_part = value[p]
+    # res_summary = {#'RTT'        : rtt,
+    #                #'BUFFER_RLC' : rlc,
+    #                #'SDELAY_RLC' : sdelay,
+    #                'SINR_CONTROL' : sinr_control,
+    #                'SINR_DATA'  : sinr_data,
+    #             #    'CQI'        : cqi,
+    #             #    'BLER'       : bler,
+    #                'PATH_LOSS'  : path_loss,
+    #                }
+    # for key, value in res_summary.items():
+    #     for p in range(parts.shape[0]):
+    #         value_part = value[p]
             
-            for ue in range(len(value_part)):
-                results['part-' + str((p+1) % parts.shape[0])][key + '_MEAN-' + str((ue+1) % len(value_part))] = str(value_part[ue][0]) if not math.isnan(value_part[ue][0]) else '0'
-                results['part-' + str((p+1) % parts.shape[0])][key + '_STD-' + str((ue+1) % len(value_part))] = str(value_part[ue][1]) if not math.isnan(value_part[ue][1]) else '0'
-                if len(value_part[ue]) > 2:
-                    results['part-' + str((p+1) % parts.shape[0])][key + '_BINS-' + str((ue+1) % len(value_part))] = np.array2string(value_part[ue][2], separator=',')
-                    results['part-' + str((p+1) % parts.shape[0])][key + '_CDF-'  + str((ue+1) % len(value_part))] = np.array2string(value_part[ue][3], separator=',')
+    #         for ue in range(len(value_part)):
+    #             results['part-' + str((p+1) % parts.shape[0])][key + '_MEAN-' + str((ue+1) % len(value_part))] = str(value_part[ue][0]) if not math.isnan(value_part[ue][0]) else '0'
+    #             results['part-' + str((p+1) % parts.shape[0])][key + '_STD-' + str((ue+1) % len(value_part))] = str(value_part[ue][1]) if not math.isnan(value_part[ue][1]) else '0'
+    #             if len(value_part[ue]) > 2:
+    #                 results['part-' + str((p+1) % parts.shape[0])][key + '_BINS-' + str((ue+1) % len(value_part))] = np.array2string(value_part[ue][2], separator=',')
+    #                 results['part-' + str((p+1) % parts.shape[0])][key + '_CDF-'  + str((ue+1) % len(value_part))] = np.array2string(value_part[ue][3], separator=',')
                 
 
-    for p in range(parts.shape[0]):
-        results['part-' + str((p+1) % parts.shape[0])]['THR_DRP_MEAN'] = str(drp[p][0]) if not math.isnan(drp[p][0]) else '0'
-        results['part-' + str((p+1) % parts.shape[0])]['THR_DRP_STD'] = str(drp[p][1])  if not math.isnan(drp[p][1]) else '0'
+    # for p in range(parts.shape[0]):
+    #     results['part-' + str((p+1) % parts.shape[0])]['THR_DRP_MEAN'] = str(drp[p][0]) if not math.isnan(drp[p][0]) else '0'
+    #     results['part-' + str((p+1) % parts.shape[0])]['THR_DRP_STD'] = str(drp[p][1])  if not math.isnan(drp[p][1]) else '0'
 
-        results['part-' + str((p+1) % parts.shape[0])]['JAIN_MEAN'] = str(jain_index[p][0]) if not math.isnan(jain_index[p][0]) else '0'
-        results['part-' + str((p+1) % parts.shape[0])]['JAIN_STD'] = str(jain_index[p][1])  if not math.isnan(jain_index[p][1]) else '0'
+    #     results['part-' + str((p+1) % parts.shape[0])]['JAIN_MEAN'] = str(jain_index[p][0]) if not math.isnan(jain_index[p][0]) else '0'
+    #     results['part-' + str((p+1) % parts.shape[0])]['JAIN_STD'] = str(jain_index[p][1])  if not math.isnan(jain_index[p][1]) else '0'
         
-    with open(myhome + 'results.ini', 'w') as configfile:
-        results.write(configfile)
+    # with open(myhome + 'results.ini', 'w') as configfile:
+    #     results.write(configfile)
 
     toc = time.time()
     print(f"\nAll Processed in: %.2f" %(toc-tic))
@@ -525,7 +525,7 @@ def graph_mobility(myhome):
     """Plots the displacement of the UEs."""
     file = "mobilityPosition.txt"
     jsonfile = "PhysicalDistribution.json"
-    title = "Mobility"
+    title = "Physical distribution of the objects in Scenario 2"
     
     if os.path.exists(myhome + file):
         mob = pd.read_csv(myhome + file, sep="\t", on_bad_lines='skip')
@@ -533,7 +533,7 @@ def graph_mobility(myhome):
         mob = pd.read_csv(myhome + file + ".gz", compression='gzip', sep="\t", on_bad_lines='skip')
     mob.set_index('Time', inplace=True)
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(7, 7))
     for ue in mob['UE'].unique():
         ax1 = mob[mob['UE'] == ue].plot.scatter(x='x', y='y', ax=ax, c=colors[(ue-1) % len(colors)])
 
@@ -541,7 +541,7 @@ def graph_mobility(myhome):
     gNbbox = OffsetImage(gNbicon, zoom=0.25)
 
     house_icon = plt.imread(get_sample_data(os.path.join(root_dir, "img", "house.png")))
-    house_box = OffsetImage(house_icon, zoom=0.05)
+    house_box = OffsetImage(house_icon, zoom=0.07)
     tree_icon = plt.imread(get_sample_data(os.path.join(root_dir, "img", "tree.png")))
     tree_box = OffsetImage(tree_icon, zoom=0.05)
 
@@ -551,19 +551,39 @@ def graph_mobility(myhome):
 
         # Set gnb
         for g in data['gnb']:
-            gNbPos = [g['x'], g['y'] * 1.1]
+            gNbPos = [g['x'] - 1.5, g['y'] * 1.1]
             gNbab = AnnotationBbox(gNbbox, gNbPos, frameon=False, zorder = 3)
             ax.add_artist(gNbab)
 
         # Set buildings and trees
+        house = 0
         if enableBuildings:
-            for b in data['Buildings']:
-                if ("ExternalWallsType" in b) and (b['ExternalWallsType'] == 0):
-                    tree_ab = AnnotationBbox(tree_box, (b['xmin'], b['ymin']), frameon=False, zorder = 1)
+            for bld in data['Buildings']:
+
+                if ("ExternalWallsType" in bld) and (bld['ExternalWallsType'] == 0):
+                    tree_ab = AnnotationBbox(tree_box, (bld['xmin'], bld['ymin']), frameon=False, zorder = 1)
                     ax.add_artist(tree_ab)
-                else:
-                    house_ab = AnnotationBbox(house_box, (b['xmin'], b['ymin']), frameon=False, zorder = 1)
+
+                elif house:
+                    house_ab = AnnotationBbox(house_box, (bld['xmin']+6, bld['ymin']+3), frameon=False, zorder = 1)
                     ax.add_artist(house_ab)
+                
+                else:
+                    # Dibujar el edificio como un rectángulo de fondo
+                    bldRect = plt.Rectangle((bld["xmin"], bld["ymin"]), bld["xwidth"], bld["ywidth"], 
+                                            alpha=0.9, facecolor="lightsteelblue")
+                    ax.add_patch(bldRect)
+
+                    # Dibujar divisiones internas si hay habitaciones
+                    if bld["nroomsX"] > 0:
+                        sep = bld["xwidth"] / bld["nroomsX"]
+                        for xnum in range(bld["nroomsX"] + 1):
+                            plt.vlines(x=bld["xmin"] + xnum * sep, ymin=bld["ymin"], ymax=bld["ymax"], colors="black")
+                    
+                    if bld["nroomsY"] > 0:
+                        sep = bld["ywidth"] / bld["nroomsY"]
+                        for ynum in range(bld["nroomsY"] + 1):
+                            plt.hlines(y=bld["ymin"] + ynum * sep, xmin=bld["xmin"], xmax=bld["xmax"], colors="black")
 
     else:
         # Default position for buildings and trees if JSON doesn't exist
@@ -576,7 +596,7 @@ def graph_mobility(myhome):
                     tree_ab = AnnotationBbox(tree_box, (x, y), frameon=False, zorder = 1)
                     ax.add_artist(tree_ab)
                 else:
-                    house_ab = AnnotationBbox(house_box, (x, y), frameon=False, zorder = 1)
+                    house_ab = AnnotationBbox(house_box, (x, y), frameon=False, zorder = 2)
                     ax.add_artist(house_ab)
 
         # Set gnb
@@ -590,17 +610,20 @@ def graph_mobility(myhome):
     UEbox = OffsetImage(UEicon, zoom=0.02)
     for ue in mob['UE'].unique():
         UEPos = mob[mob['UE'] == ue][['x', 'y']].iloc[-1:].values[0] * 1.01
-        UEab = AnnotationBbox(UEbox, UEPos, frameon=False, zorder = 2)
+        UEab = AnnotationBbox(UEbox, UEPos, frameon=False, zorder = 1)
         ax.add_artist(UEab)
 
-    plt.xlim([0, 100])
-    plt.ylim([0, 100])
+    ax.scatter([], [], color='blue', label="UE Trajectory")
+    ax.legend(loc="upper right")
+    plt.xlim([0,60])
+    plt.ylim([0, 20])
     ax.set_xlabel("Distance [m]")
     ax.set_ylabel("Distance [m]")
 
     if show_title:
-        plt.suptitle(title, y=0.99, fontsize=title_font_size)
-        plt.title(subtitle, fontsize=subtitle_font_size)
+        plt.title(title, y=1.02, fontsize=title_font_size)
+        # plt.suptitle(title, y=0.99, fontsize=title_font_size)
+        # plt.title(subtitle, fontsize=subtitle_font_size)
 
     fig.savefig(myhome + prefix + 'MOBILITY' + '.png', dpi = 600)
     plt.close()    
@@ -2118,7 +2141,31 @@ def calculate_metrics(myhome):
     #print(f"\tProcessed in: %.2f" %(toc-tic))
     return True
 
+# ----------------------------------------------------------
+# SINR Heatmap | Both
+# ----------------------------------------------------------
+@info_n_time_decorator("SINR Heatmap")
+def graphSinrHeatmap():
+    
+    filepath = "nr-rem-rem.out"
+    df = pd.read_csv(filepath, sep="\t", index_col=False,
+                     names=["X", "Y", "Z", "SNR", "SINR", "IPSD", "SIR"])
+    
+    fig, ax = plt.subplots(1, 1)
 
+    sns.heatmap(data=df.pivot_table(index="Y", columns="X", values="SINR"),
+                ax=ax, cmap="magma", vmin=df["SINR"].min(),
+                vmax=df['SINR'].max(), center=10, xticklabels=10, 
+                yticklabels=10, cbar_kws={'label': 'SINR [dBm]'})
+    ax.invert_yaxis()
+    ax.set_xlabel("Distance [m]")
+    ax.set_ylabel("Distance [m]")
+    ax.set_title(f"SINR Heatmap of the physical distribution at " 
+                 f"z={df['Z'].min()}m")
+    fig.savefig("heatmap.png", dpi=300)
+    plt.close()
+
+    return True
 
 if __name__ == '__main__':
     main()
