@@ -22,7 +22,7 @@ montecarlo=2
 num_cores=$(($(nproc) / 2))
 
 outdir=""
-outpath==""
+outpath=""
 sim_num=1
 nparam=0
 custom_name=""
@@ -37,7 +37,7 @@ helpFunction()
    echo -e "\nflags:"
    echo -e "\t-m, --montecarlo \tNumber of montecarlo iterations [default: ${montecarlo}]."
    echo -e "\t-c, --outDir \tCustom folder/directory name for the folder with the different simulations, the word \"PAR-\" will be prefixed."
-   echo -e "\t-r, --notRandom \tDeactivate the use of different rng seeds per montercarlo iteration."
+   echo -e "\t-r, --notRandom \tDeactivate the use of different rng seeds per montecarlo iteration."
    echo -e "\t-b, --noBuild \tSkips the build step of ns3, it always build by default."
    echo -e "\t-n, --maxSim \tMaximum number of simultaneous simulations [default: ${num_cores}]."
    echo -e "\t-h, --help \tPrint this message."
@@ -107,8 +107,6 @@ for param in "${parameters[@]}"; do
 
     for ((mont_num=1; mont_num<=montecarlo; mont_num++)); do
 
-        # rem=$((sim_num % num_cores))
-
         param2=$param;
         if [ "$random" == "1" ]; then
             param2="$param -z $mont_num"
@@ -116,18 +114,7 @@ for param in "${parameters[@]}"; do
 
         stdoutTxt=$basehome/out/$outdir/outputs/sim${mont_num}.txt
         _cmd="${basehome}/cca-perf.sh -o $outdir/SIM${mont_num} $param2 &> $stdoutTxt"
-        _cmd="${_cmd}; if [ "'$('"find ${basehome}/out/$outdir -type f -name .still_running | wc -l) -eq 0 ]; then mv ${basehome}/out/$outdir ${basehome}/out/$final_outdir; fi"
         _cmds_to_run+=("${_cmd}")
-        
-# Agregar al final de la línea 119 para que se haga el violin por cada PARAM, para luego juntarlos todos
-
-        # (bash "cca-perf.sh" -o "$outdir/SIM${mont_num}" $param2 &> $stdoutTxt; printf "Done $sim_num ${TXT_RED}-${TXT_CLEAR} Exit Status $?\n") &
-        # printf "[sim:${TXT_BLUE}${sim_num}${TXT_CLEAR} pid:${TXT_CYAN}$!${TXT_CLEAR}] Called ${TXT_GREEN}cca-perf.sh -o \"SIM${mont_num}\" ${param2} ${TXT_CLEAR}\n"
-
-        # if [ "$rem" == "$((num_cores-1))" ]; then
-        #     jobs
-        #     wait
-        # fi
 
         ((sim_num++))
     done
@@ -155,10 +142,20 @@ echo
 printf "${TXT_BLUE}Running simulations... $TXT_CLEAR\n"
 printf "%s\n" "${_cmds_to_run[@]}" | xargs --max-procs=$num_cores -I % bash -c "%"
 
-printf "Simulation finished!"
-echo
-printf "Running graph_parallel.py.."
-echo
-echo graph_parallel.py $RUTA_PROBE/out/$batch_dir_name
-echo
+# Move directories only after all simulations have finished
+for ((i=0; i<nparam; i++)); do
+    src_dir="$basehome/out/${batch_dir_name}/PARAM${i}_NOTDONE"
+    dest_dir="$basehome/out/${batch_dir_name}/PARAM${i}_DONE"
+    if [ -d "$src_dir" ]; then
+        mv "$src_dir" "$dest_dir"
+    fi
+done
+
+# for param_dir in $basehome/out/${batch_dir_name}/PARAM*_DONE; do
+#     python3 calc_averages.py "$param_dir"
+# done
+
+printf "Simulation finished!\n"
+printf "Running graph_parallel.py..\n"
+echo python3 graph_parallel.py $RUTA_PROBE/out/$batch_dir_name
 python3 graph_parallel.py $RUTA_PROBE/out/$batch_dir_name

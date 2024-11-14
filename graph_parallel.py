@@ -149,12 +149,13 @@ def violinGraphThr(data):
 
     fig, axes = plt.subplots(1, n_cols)
 
+    if n_cols == 1:
+        axes = [axes]
+    
     axes[0].set_ylabel("Throughput [Mb/s]")
-    # palettes = [sns.color_palette("Set1")[:4], sns.color_palette("Set1")[4:]]
-    palettes = [sns.color_palette("Set1"), sns.color_palette("Pastel1")]
+    palettes = [sns.color_palette("Set1")[:4], sns.color_palette("Pastel1")[:4]]
     for pos, ax in enumerate(axes):
         max_len = len(sorted(data[pos]["data"], key=lambda x: len(x))[-1])
-
         thrs = []
         for thr in data[pos]["data"]:
             if len(thr) < max_len:
@@ -162,21 +163,18 @@ def violinGraphThr(data):
             thrs.append(thr)
 
         dii = dict(A1=r"$BLER_{10\%}$", A2=r"$BLER_{30\%}$",
-                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$")
-        aaa = list(map(lambda x: dii[x], data[pos]["labels"]))
+                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$", A5=r"$BLER_{python}$")
+        aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
         vals = np.array(thrs, dtype=float).T
         df = pd.DataFrame(data=vals, columns=aaa)
 
-        sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=palettes[pos])
+        sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=palettes[pos % len(palettes)])
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
-                      linestyles="--", errorbar=None, scale=0.5, label="Mean")
+                      linestyles="--", errorbar=None, markersize=4, label="Mean")
 
-        # Add text on top of the pointplots
-        for p in zip(ax.get_xticks(),
-                     np.round(np.nanmean(vals, axis=0), decimals=1)):
-            # Distance from pointplot
+        for p in zip(ax.get_xticks(), np.round(np.nanmean(vals, axis=0), decimals=1)):
             weight = 1.032 if p[1] > 50 else 1.25
-            ax.text(p[0], p[1]*weight, p[1], color='black', ha='center',
+            ax.text(p[0], p[1] * weight, p[1], color='black', ha='center',
                     bbox=dict(facecolor='white', alpha=0.4, boxstyle="round"))
 
         if pos == 1:
@@ -185,7 +183,7 @@ def violinGraphThr(data):
         ax.set_title(data[pos]["scene"].replace("S", "Scenario "))
         ax.set_xlabel("Algorithm")
         ax.legend()
-        ax.set_xticks(ticks=range(4), labels=aaa, rotation=5, fontsize=9.2)
+        ax.set_xticks(ticks=range(len(aaa)), labels=aaa, rotation=5, fontsize=9.2)
 
     fig.suptitle("Distribution of Throughput by Algorithm-Scenario")
     fig.savefig(os.path.join(PATH, "Thr-Violin-Par.png"), dpi=300)
@@ -196,13 +194,15 @@ def violinGraphThr(data):
 
 @info_n_time_decorator("Delay Violin", debug=True)
 def violinGraphDelay(data):
-
     data = separate_by_scenario(data)
     n_cols = len(data)
 
     fig, axes = plt.subplots(1, n_cols)
-    palettes = [sns.color_palette("Set1"), sns.color_palette("Pastel1")]
+    if n_cols == 1:
+        axes = [axes]
+
     axes[0].set_ylabel("Delay [ms]")
+    
     for pos, ax in enumerate(axes):
         max_len = len(sorted(data[pos]["data"], key=lambda x: len(x))[-1])
 
@@ -213,24 +213,24 @@ def violinGraphDelay(data):
             thrs.append(thr)
 
         dii = dict(A1=r"$BLER_{10\%}$", A2=r"$BLER_{30\%}$",
-                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$")
-        aaa = list(map(lambda x: dii[x], data[pos]["labels"]))
+                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$", A5=r"$BLER_{python}$")
+        aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
 
         vals = np.array(thrs, dtype=float).T
         df = pd.DataFrame(data=vals, columns=aaa)
         df.replace(0, np.nan, inplace=True)
         df.to_csv("DelayDf.txt", sep="\t", encoding="utf-8")
 
-        sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=palettes[pos])
+        # Paleta limitada a 4 colores para cada gráfico
+        current_palette = sns.color_palette("Set1")[:4] if pos % 2 == 0 else sns.color_palette("Pastel1")[:4]
+        
+        sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=current_palette)
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
-                      linestyles="--", errorbar=None, scale=0.5, label="Mean")
+                      linestyles="--", errorbar=None, markersize=4, label="Mean")
 
-        # Add text on top of the pointplots
-        for p in zip(ax.get_xticks(),
-                     np.round(np.nanmean(vals, axis=0), decimals=1)):
-            # Distance from pointplot
+        for p in zip(ax.get_xticks(), np.round(np.nanmean(vals, axis=0), decimals=1)):
             weight = 1.11 if p[1] > 50 else 1.045
-            ax.text(p[0], p[1]*weight, p[1], color='black', ha='center',
+            ax.text(p[0], p[1] * weight, p[1], color='black', ha='center',
                     bbox=dict(facecolor='white', alpha=0.4, boxstyle="round"))
 
         if pos == 0:
@@ -241,13 +241,14 @@ def violinGraphDelay(data):
         ax.set_title(data[pos]["scene"].replace("S", "Scenario "))
         ax.set_xlabel("Algorithm")
         ax.legend()
+        ax.set_xticks(ticks=range(len(aaa)), labels=aaa, rotation=5, fontsize=9.2)
 
-        ax.set_xticks(ticks=range(4), labels=aaa, rotation=5, fontsize=9.2)
     fig.suptitle("Distribution of Packet Delay by Algorithm-Scenario")
     fig.savefig(os.path.join(PATH, "Delay-Violin-Par.png"), dpi=300)
     plt.close()
 
     return True
+
 
 
 @info_n_time_decorator("Retransmissions", True)
@@ -274,12 +275,15 @@ def stackedbar_graph_rtx():
     n_cols = len(data)
     fig, axes = plt.subplots(1, n_cols)
 
+    if n_cols == 1:
+        axes = [axes]
+
     axes[0].set_ylabel("Percentage of sent blocks [%]")
     for pos, ax in enumerate(axes):
         bottom = np.zeros(len(data[pos]["labels"]))
 
         dii = dict(A1=r"$BLER_{10\%}$", A2=r"$BLER_{30\%}$",
-                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$")
+                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$", A5=r"$BLER_{python}$")
         aaa = list(map(lambda x: dii[x], data[pos]["labels"]))
 
         for i, nrtx in enumerate(["Failed", "No Re-TX",
@@ -312,6 +316,9 @@ def violin_graph_bler():
     n_cols = len(data)
 
     fig, axes = plt.subplots(1, n_cols)
+
+    if n_cols == 1:
+        axes = [axes]
 
     axes[0].set_ylabel("BLER")
     for pos, ax in enumerate(axes):
@@ -353,4 +360,4 @@ if __name__ == "__main__":
     violinGraphThr(t)
     violinGraphDelay(d)
     stackedbar_graph_rtx()
-    violin_graph_bler()
+    # violin_graph_bler()

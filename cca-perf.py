@@ -9,21 +9,9 @@ from time import localtime, strftime  # For the time being
 from lib.amc import AmcManager, Python_Bler
 
 AMC_OPTS = {
-      "lena_default": 0,
-      "probe_cqi": 1,
-      "new_bler_target": 2,
-      "exp_bler_target": 3,
-      "hybrid_bler_target": 4,
       "python_bler_target": 5
 }
 
-# AMC_FUNC = {
-#       "lena_default": "LENA_DEFAULT",
-#       "probe_cqi": "PROBE_CQI",
-#       "new_bler_target": "NEW_BLER_TARGET",
-#       "exp_bler_target": "EXP_BLER_TARGET",
-#       "hybrid_bler_target": "Hybrid_Bler"
-# }
 
 AMC_FUNC = {
       "python_bler_target": Python_Bler

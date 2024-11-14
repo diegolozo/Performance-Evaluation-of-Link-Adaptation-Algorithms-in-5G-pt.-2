@@ -463,8 +463,8 @@ IndoorRouterPhysicalDistribution(ns3::NodeContainer& gnbNodes, ns3::NodeContaine
     // uint16_t ueNumPergNb = 1;   // Numbers of User per RB
     // double ueDistance = .50;    //Distance between UE
     // Located at Apt2, the 1.5 its so it places in the middle of the apt
-    double xUE = buildX + apartmentLenX * 2.5; // Initial X Position UE
-    double yUE = buildY + apartmentLenY * 1 - 1 + 5; // Initial Y Position UE
+    double xUE = buildX + apartmentLenX * 2.5; // (20) Initial X Position UE
+    double yUE = buildY + apartmentLenY * 1 - 1 + 5; // (24) Initial Y Position UE
     uint8_t UEfloor = 3;  // Floor where the UE is located floor (in [1, nFloors))
     hUE = floorHeight * UEfloor + 1.5; // Z position of the UE
 
@@ -499,15 +499,6 @@ IndoorRouterPhysicalDistribution(ns3::NodeContainer& gnbNodes, ns3::NodeContaine
         // ueNodes.Get(u)->GetObject<MobilityModel>()->SetPosition(Vector((float)xUE, (float) yUE, zUE)); // (x, y, z) in m
         // ueNodes.Get(u)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector( speed, 0,  0)); // move UE1 along the x axis
         // Waypoint model for plot
-        Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
-        waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, zUE))); // Posición inicial Pos:(20, 24, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(xUE, yUE-7, zUE))); // Posición inicial Pos:(20, 24, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(xUE, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(xUE+18, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(xUE+18, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(xUE+18, yUE, zUE))); // Pos:(45, 24, 1.5)
-
-        // Waypoint model for simulation
         // Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
         // waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, zUE))); // Posición inicial Pos:(20, 24, 1.5)
         // waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(xUE, yUE-7, zUE))); // Posición inicial Pos:(20, 24, 1.5)
@@ -515,6 +506,15 @@ IndoorRouterPhysicalDistribution(ns3::NodeContainer& gnbNodes, ns3::NodeContaine
         // waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(xUE+18, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
         // waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(xUE+18, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
         // waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(xUE+18, yUE, zUE))); // Pos:(45, 24, 1.5)
+
+        // Waypoint model for simulation
+        Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
+        waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, zUE))); // Posición inicial Pos:(20, 11, 10.5)
+        waypoints->AddWaypoint(Waypoint(Seconds(7.0), Vector(xUE, yUE-7, zUE))); // 
+        waypoints->AddWaypoint(Waypoint(Seconds(16.0), Vector(xUE, yUE-7, zUE-9))); // 
+        waypoints->AddWaypoint(Waypoint(Seconds(34.0), Vector(xUE+18, yUE-7, zUE-9))); // 
+        waypoints->AddWaypoint(Waypoint(Seconds(41.0), Vector(xUE+18, yUE, zUE-9))); // 
+        waypoints->AddWaypoint(Waypoint(Seconds(50.0), Vector(xUE+18, yUE, zUE))); // 
 
 
     }
@@ -699,24 +699,24 @@ NeighborhoodPhysicalDistribution(ns3::NodeContainer& gnbNodes, ns3::NodeContaine
         // ueNodes.Get(u)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector( speedX, speedY,  0)); // move UE1 along the y axis
         
         // Waypoint model ONLY FOR PLOT
-        Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
-        waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, hUE))); // Posición inicial Pos:(16, 30, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(46, 30, hUE)));
-        waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(46, 20, hUE))); 
-        waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(54, 20, hUE)));
-        waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(54, 30, hUE)));
-        waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(75, 30, hUE)));
-        waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 55, hUE)));
-
-        // // Waypoint model (Total: 96 m)
         // Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
         // waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, hUE))); // Posición inicial Pos:(16, 30, 1.5)
-        // waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(46, 30, hUE))); // 30
-        // waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(46, 25, hUE))); // 5
-        // waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(54, 25, hUE))); // 8
-        // waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(54, 30, hUE))); // 5
-        // waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(75, 30, hUE))); // 32
-        // waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 56, hUE))); // 16
+        // waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(46, 30, hUE)));
+        // waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(46, 20, hUE))); 
+        // waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(54, 20, hUE)));
+        // waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(54, 30, hUE)));
+        // waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(75, 30, hUE)));
+        // waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 55, hUE)));
+
+        // // Waypoint model (Total: 96 m)
+        Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
+        waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, hUE))); // Posición inicial Pos:(16, 30, 1.5)
+        waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(46, 30, hUE))); // 30
+        waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(46, 25, hUE))); // 5
+        waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(54, 25, hUE))); // 8
+        waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(54, 30, hUE))); // 5
+        waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(75, 30, hUE))); // 32
+        waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 56, hUE))); // 16
 
     }
 

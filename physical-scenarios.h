@@ -11,9 +11,9 @@ using namespace ns3;
 
     enum PhysicalDistributionOptions {
         DEFAULT,
-        TREES,
+        NEIGHBORHOOD,
         IND_ROUTER,
-        NEIGHBORHOOD
+        TREES
     };
     
     /**
