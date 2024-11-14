@@ -153,7 +153,7 @@ def violinGraphThr(data):
         axes = [axes]
     
     axes[0].set_ylabel("Throughput [Mb/s]")
-    palettes = [sns.color_palette("Set1")[:4], sns.color_palette("Pastel1")[:4]]
+    palettes = [sns.color_palette("Set1")[:5], sns.color_palette("Pastel1")[:5]]
     for pos, ax in enumerate(axes):
         max_len = len(sorted(data[pos]["data"], key=lambda x: len(x))[-1])
         thrs = []
@@ -219,10 +219,10 @@ def violinGraphDelay(data):
         vals = np.array(thrs, dtype=float).T
         df = pd.DataFrame(data=vals, columns=aaa)
         df.replace(0, np.nan, inplace=True)
-        df.to_csv("DelayDf.txt", sep="\t", encoding="utf-8")
+        # df.to_csv("DelayDf.txt", sep="\t", encoding="utf-8")
 
         # Paleta limitada a 4 colores para cada gráfico
-        current_palette = sns.color_palette("Set1")[:4] if pos % 2 == 0 else sns.color_palette("Pastel1")[:4]
+        current_palette = sns.color_palette("Set1")[:5] if pos % 2 == 0 else sns.color_palette("Pastel1")[:5]
         
         sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=current_palette)
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
@@ -295,7 +295,7 @@ def stackedbar_graph_rtx():
         ax.set_title(data[pos]["scene"].replace("S", "Scenario "))
         ax.set_xlabel("Algorithm")
         ax.legend()
-        ax.set_xticks(ticks=range(4), labels=aaa, rotation=5, fontsize=9.2)
+        ax.set_xticks(ticks=range(5), labels=aaa, rotation=5, fontsize=9.2)
 
     fig.suptitle("Percentage of successful and failed blocks transmission")
     fig.savefig(os.path.join(PATH, "Rtx-Bar-Par.png"), dpi=300)

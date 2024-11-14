@@ -500,12 +500,12 @@ IndoorRouterPhysicalDistribution(ns3::NodeContainer& gnbNodes, ns3::NodeContaine
         // ueNodes.Get(u)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector( speed, 0,  0)); // move UE1 along the x axis
         // Waypoint model for plot
         // Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
-        // waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, zUE))); // Posición inicial Pos:(20, 24, 1.5)
-        // waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(xUE, yUE-7, zUE))); // Posición inicial Pos:(20, 24, 1.5)
-        // waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(xUE, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
-        // waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(xUE+18, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
-        // waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(xUE+18, yUE-7, 1.5))); // Pos:(45, 24, 1.5)
-        // waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(xUE+18, yUE, zUE))); // Pos:(45, 24, 1.5)
+        // waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, zUE))); // Posición inicial Pos:(20, 11, 10.5)
+        // waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(xUE, yUE-7, zUE))); // 
+        // waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(xUE, yUE-7, zUE-9))); // 
+        // waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(xUE+18, yUE-7, zUE-9))); // 
+        // waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(xUE+18, yUE, zUE-9))); // 
+        // waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(xUE+18, yUE, zUE))); // 
 
         // Waypoint model for simulation
         Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();

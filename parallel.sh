@@ -151,11 +151,7 @@ for ((i=0; i<nparam; i++)); do
     fi
 done
 
-# for param_dir in $basehome/out/${batch_dir_name}/PARAM*_DONE; do
-#     python3 calc_averages.py "$param_dir"
-# done
-
 printf "Simulation finished!\n"
 printf "Running graph_parallel.py..\n"
-echo python3 graph_parallel.py $RUTA_PROBE/out/$batch_dir_name
-python3 graph_parallel.py $RUTA_PROBE/out/$batch_dir_name
+echo python3 graph_parallel.py $basehome/out/${batch_dir_name}
+python3 graph_parallel.py $basehome/out/${batch_dir_name}

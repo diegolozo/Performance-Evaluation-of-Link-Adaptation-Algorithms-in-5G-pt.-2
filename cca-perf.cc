@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
     bool logging = true;            // whether to enable logging from the simulation, another option is by
                                     // exporting the NS_LOG environment variable
     bool shadowing = true;          // to enable shadowing effect
-    bool addNoise = false;           // To enable/disable AWGN
+    bool addNoise = true;           // To enable/disable AWGN
 
     std::string AQMEnq = "None";       // AQM 'None', 'RED', 'ARED''
     std::string AQMDeq = "None";       // AQM 'None', 'CoDel'
