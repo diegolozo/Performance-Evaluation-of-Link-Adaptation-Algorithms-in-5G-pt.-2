@@ -30,7 +30,7 @@ def read_flow_output(directory):
     delay_match = []
     for root, dir, _ in os.walk(directory):
         for sim in dir:
-            file_path = os.path.join(root, sim, 'FlowOutput.txt')
+            file_path = os.path.join(root, sim, 'FlowOutput.keep')
             if os.path.isfile(file_path):
                 with open(file_path, 'r') as file:
                     content = file.readlines()
@@ -253,7 +253,7 @@ def violinGraphDelay(data):
 
 @info_n_time_decorator("Retransmissions", True)
 def stackedbar_graph_rtx():
-    data_dict = data_from_file_to_dict('RxPacketTrace.txt')
+    data_dict = data_from_file_to_dict('RxPacketTrace.keep')
 
     RTX_OPTIONS = pd.Series(0, index=range(-1, 4), dtype=np.float64)
 
@@ -306,7 +306,7 @@ def stackedbar_graph_rtx():
 
 @info_n_time_decorator("Violin BLER", True)
 def violin_graph_bler():
-    data_dict = data_from_file_to_dict('RxPacketTrace.txt')
+    data_dict = data_from_file_to_dict('RxPacketTrace.keep')
 
     for i, df in enumerate(data_dict["data"]):
         data_dict["data"][i] = df.loc[(df["direction"] == "DL"), "TBler"]\

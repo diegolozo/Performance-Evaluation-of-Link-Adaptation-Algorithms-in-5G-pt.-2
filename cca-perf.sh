@@ -338,7 +338,7 @@ fi
 
 # fi
 
-if [ "$myscenario" != "0" ] && [ "$myscenario" != "2" ] && [ "$myscenario" != "3" ]; then
+if [ "$myscenario" != "0" ] && [ "$myscenario" != "1" ] && [ "$myscenario" != "2" ] && [ "$myscenario" != "3" ]; then
    echo "Scenario \"$myscenario\" no available";
    helpFunction
 fi
@@ -594,24 +594,26 @@ echo
 ./packet-error-rate.sh $outfolder/$bkfolder
 
 
-echo
-printf "Running... Graph Script\n"
-echo
+# echo
+# printf "Running... Graph Script\n"
+# echo
 
-echo "python3 cca-perf-graph.py $outfolder/$bkfolder"
-python3 cca-perf-graph.py $outfolder/$bkfolder
-
-if [ "$delete_txt" == "1" ]; then
-   echo
-   printf "Removing .txt files\n"
-   rm $outfolder/$bkfolder/*.txt
-fi
+# echo "python3 cca-perf-graph.py $outfolder/$bkfolder"
+# python3 cca-perf-graph.py $outfolder/$bkfolder
 
 # echo
 # printf "Compressing files\n"
 # echo
-# gzip $outfolder/$bkfolder/*.txt &
-# gzip $outfolder/$bkfolder/*.csv &
+# gzip $outfolder/$bkfolder/*.txt 
+# gzip $outfolder/$bkfolder/*.csv 
+
+echo
+printf "Deleting files\n"
+echo
+
+mv "$outfolder/$bkfolder/FlowOutput.txt" "$outfolder/$bkfolder/FlowOutput.keep"
+mv "$outfolder/$bkfolder/RxPacketTrace.txt" "$outfolder/$bkfolder/RxPacketTrace.keep"
+rm $outfolder/$bkfolder/*.txt &
 
 __full_path=$outfolder/$bkfolder
 # source cca-sim-backup.sh $outfolder/$bkfolder

@@ -706,17 +706,17 @@ NeighborhoodPhysicalDistribution(ns3::NodeContainer& gnbNodes, ns3::NodeContaine
         // waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(54, 20, hUE)));
         // waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(54, 30, hUE)));
         // waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(75, 30, hUE)));
-        // waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 55, hUE)));
+        // waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 56, hUE)));
 
         // // Waypoint model (Total: 96 m)
         Ptr<WaypointMobilityModel> waypoints = ueNodes.Get(u)->GetObject<WaypointMobilityModel>();
         waypoints->AddWaypoint(Waypoint(Seconds(0.0), Vector(xUE, yUE, hUE))); // Posición inicial Pos:(16, 30, 1.5)
-        waypoints->AddWaypoint(Waypoint(Seconds(1.0), Vector(46, 30, hUE))); // 30
-        waypoints->AddWaypoint(Waypoint(Seconds(2.0), Vector(46, 25, hUE))); // 5
-        waypoints->AddWaypoint(Waypoint(Seconds(3.0), Vector(54, 25, hUE))); // 8
-        waypoints->AddWaypoint(Waypoint(Seconds(4.0), Vector(54, 30, hUE))); // 5
-        waypoints->AddWaypoint(Waypoint(Seconds(5.0), Vector(75, 30, hUE))); // 32
-        waypoints->AddWaypoint(Waypoint(Seconds(6.0), Vector(75, 56, hUE))); // 16
+        waypoints->AddWaypoint(Waypoint(Seconds(15.0), Vector(46, 30, hUE))); // 30
+        waypoints->AddWaypoint(Waypoint(Seconds(17.5), Vector(46, 25, hUE))); // 5
+        waypoints->AddWaypoint(Waypoint(Seconds(21.5), Vector(54, 25, hUE))); // 8
+        waypoints->AddWaypoint(Waypoint(Seconds(24.0), Vector(54, 30, hUE))); // 5
+        waypoints->AddWaypoint(Waypoint(Seconds(40.0), Vector(75, 30, hUE))); // 32
+        waypoints->AddWaypoint(Waypoint(Seconds(48.0), Vector(75, 56, hUE))); // 16
 
     }
 
