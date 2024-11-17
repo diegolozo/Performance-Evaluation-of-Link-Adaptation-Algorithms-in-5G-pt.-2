@@ -2,6 +2,7 @@
 
 # Custom vars
 # Set paths
+start_time=$(date +%s)
 basehome=${PWD}
 cd ../..
 ns3home=${PWD}
@@ -114,6 +115,7 @@ for param in "${parameters[@]}"; do
 
         stdoutTxt=$basehome/out/$outdir/outputs/sim${mont_num}.txt
         _cmd="${basehome}/cca-perf.sh -o $outdir/SIM${mont_num} $param2 &> $stdoutTxt"
+        _cmd="${_cmd}; if [ "'$('"find ${basehome}/out/$outdir -type f -name .still_running | wc -l) -eq 0 ]; then mv ${basehome}/out/$outdir ${basehome}/out/${batch_dir_name}/PARAM${nparam}_DONE; fi"
         _cmds_to_run+=("${_cmd}")
 
         ((sim_num++))
@@ -142,16 +144,12 @@ echo
 printf "${TXT_BLUE}Running simulations... $TXT_CLEAR\n"
 printf "%s\n" "${_cmds_to_run[@]}" | xargs --max-procs=$num_cores -I % bash -c "%"
 
-# Move directories only after all simulations have finished
-for ((i=0; i<nparam; i++)); do
-    src_dir="$basehome/out/${batch_dir_name}/PARAM${i}_NOTDONE"
-    dest_dir="$basehome/out/${batch_dir_name}/PARAM${i}_DONE"
-    if [ -d "$src_dir" ]; then
-        mv "$src_dir" "$dest_dir"
-    fi
-done
-
 printf "Simulation finished!\n"
 printf "Running graph_parallel.py..\n"
 echo python3 graph_parallel.py $basehome/out/${batch_dir_name}
 python3 graph_parallel.py $basehome/out/${batch_dir_name}
+
+end_time=$(date +%s)
+total_time=$((end_time - start_time))
+echo
+echo "Total execution time: ${total_time} seconds."

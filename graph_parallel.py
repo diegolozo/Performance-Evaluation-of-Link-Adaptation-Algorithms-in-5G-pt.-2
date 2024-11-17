@@ -162,8 +162,8 @@ def violinGraphThr(data):
                 thr = thr + [np.nan] * (max_len - len(thr))
             thrs.append(thr)
 
-        dii = dict(A1=r"$BLER_{10\%}$", A2=r"$BLER_{30\%}$",
-                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$", A5=r"$BLER_{python}$")
+        dii = dict(A1=r"$10\%$", A2=r"$30\%$",
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$python$")
         aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
         vals = np.array(thrs, dtype=float).T
         df = pd.DataFrame(data=vals, columns=aaa)
@@ -172,13 +172,13 @@ def violinGraphThr(data):
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
                       linestyles="--", errorbar=None, markersize=4, label="Mean")
 
-        for p in zip(ax.get_xticks(), np.round(np.nanmean(vals, axis=0), decimals=1)):
+        for p in zip(ax.get_xticks(), np.round(np.nanmean(vals, axis=0), decimals=2)):
             weight = 1.032 if p[1] > 50 else 1.25
             ax.text(p[0], p[1] * weight, p[1], color='black', ha='center',
                     bbox=dict(facecolor='white', alpha=0.4, boxstyle="round"))
 
-        if pos == 1:
-            ax.set_ylim([0, 65])
+        # if pos == 1:
+        #     ax.set_ylim([0, 65])
 
         ax.set_title(data[pos]["scene"].replace("S", "Scenario "))
         ax.set_xlabel("Algorithm")
@@ -228,15 +228,15 @@ def violinGraphDelay(data):
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
                       linestyles="--", errorbar=None, markersize=4, label="Mean")
 
-        for p in zip(ax.get_xticks(), np.round(np.nanmean(vals, axis=0), decimals=1)):
+        for p in zip(ax.get_xticks(), np.round(np.nanmean(vals, axis=0), decimals=2)):
             weight = 1.11 if p[1] > 50 else 1.045
             ax.text(p[0], p[1] * weight, p[1], color='black', ha='center',
                     bbox=dict(facecolor='white', alpha=0.4, boxstyle="round"))
 
-        if pos == 0:
-            ax.set_ylim([0, 20])
-        if pos == 1:
-            ax.set_ylim([0, 400])
+        # if pos == 0:
+        #     ax.set_ylim([0, 20])
+        # if pos == 1:
+        #     ax.set_ylim([0, 400])
 
         ax.set_title(data[pos]["scene"].replace("S", "Scenario "))
         ax.set_xlabel("Algorithm")
@@ -359,5 +359,5 @@ if __name__ == "__main__":
     t, d = get_array_for_violin()
     violinGraphThr(t)
     violinGraphDelay(d)
-    stackedbar_graph_rtx()
+    # stackedbar_graph_rtx()
     # violin_graph_bler()

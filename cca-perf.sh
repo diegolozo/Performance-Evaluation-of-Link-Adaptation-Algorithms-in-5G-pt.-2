@@ -533,7 +533,8 @@ if [ "$useAI" == "0" ]; then
       " --cwd "$outfolder/$bkfolder" --no-build
 else
    # $ns3home/ns3 run "`echo ccaperf-exec`
-   python3 cca-perf.py\
+   TIMEOUT_LIMIT=300
+   timeout $TIMEOUT_LIMIT python3 cca-perf.py\
       --frequency=`echo $frequency`\
       --bandwidth=`echo $bandwidth`\
       --tcpTypeId1=`echo $tcpTypeId1`\
@@ -574,24 +575,72 @@ else
       --cwd "$outfolder/$bkfolder" # It never builds (!)
 fi
       # --amc `echo $amc`\
+# Capturar el PID del proceso
+SIM_PID=$!
+
+# Esperar a que termine el proceso o a que expire el timeout
+wait $SIM_PID
 exit_status=$?
+
+# Si el proceso fue terminado por timeout (código 124)
+if [ "$exit_status" -eq 124 ]; then
+    echo "Error: La simulación excedió el tiempo límite de $TIMEOUT_LIMIT segundos. Matando el proceso..."
+
+    # Matar cualquier instancia del script que siga ejecutándose
+    kill -9 $SIM_PID 2>/dev/null || true
+
+   printf "${TXT_RED}Error ${exit_status} while simulating, simulation was aborted! ${TXT_CLEAR}\n"
+   echo "Graphing, per calculation and backup were not run. Compressing..."
+   gzip $outfolder/$bkfolder/*.txt
+   echo
+   printf "Deleting files\n"
+   echo
+
+   mv "$outfolder/$bkfolder/FlowOutput.txt" "$outfolder/$bkfolder/FlowOutput.keep"
+   mv "$outfolder/$bkfolder/RxPacketTrace.txt" "$outfolder/$bkfolder/RxPacketTrace.keep"
+   rm $outfolder/$bkfolder/*.txt &
+
+   __full_path=$outfolder/$bkfolder
+   # source cca-sim-backup.sh $outfolder/$bkfolder
+
+   toc=$(date +%s)
+   printf "Simulation Processed in: "${TXT_MAGENTA}$(($toc-$tic))${TXT_CLEAR}" seconds\n"
+   rm $__full_path/.still_running
+
+    # Salir con el código de error correspondiente
+    exit $exit_status
+fi
 
 # In case the simulation was aborted, exit and print code error.
 if [ "$exit_status" != "0" ]; then
    printf "${TXT_RED}Error ${exit_status} while simulating, simulation was aborted! ${TXT_CLEAR}\n"
    echo "Graphing, per calculation and backup were not run. Compressing..."
    gzip $outfolder/$bkfolder/*.txt
+   echo
+   printf "Deleting files\n"
+   echo
+
+   mv "$outfolder/$bkfolder/FlowOutput.txt" "$outfolder/$bkfolder/FlowOutput.keep"
+   mv "$outfolder/$bkfolder/RxPacketTrace.txt" "$outfolder/$bkfolder/RxPacketTrace.keep"
+   rm $outfolder/$bkfolder/*.txt &
+
+   __full_path=$outfolder/$bkfolder
+   # source cca-sim-backup.sh $outfolder/$bkfolder
+
+   toc=$(date +%s)
+   printf "Simulation Processed in: "${TXT_MAGENTA}$(($toc-$tic))${TXT_CLEAR}" seconds\n"
+   rm $__full_path/.still_running
    exit $exit_status
 fi
 
 ##########################################################
 # POST PROCESS THE DATA ACCUMULATED IN CASE OF SUCCESS
 
-echo
-printf "Running... Packet Error Rate Script\n"
-echo
+# echo
+# printf "Running... Packet Error Rate Script\n"
+# echo
 
-./packet-error-rate.sh $outfolder/$bkfolder
+# ./packet-error-rate.sh $outfolder/$bkfolder
 
 
 # echo

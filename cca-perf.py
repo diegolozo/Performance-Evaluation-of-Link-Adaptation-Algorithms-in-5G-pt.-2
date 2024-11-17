@@ -4,8 +4,9 @@ import sys
 import os
 import traceback
 import argparse
-from time import localtime, strftime  # For the time being
-
+import signal
+from time import localtime, strftime, time  # For the time being
+import subprocess
 from lib.amc import AmcManager, Python_Bler
 
 AMC_OPTS = {
@@ -16,6 +17,9 @@ AMC_OPTS = {
 AMC_FUNC = {
       "python_bler_target": Python_Bler
 }
+
+def handler_timeout(signum, frame):
+    raise TimeoutError("Timeout reached")
 
 def argument_parser():
     parser = argparse.ArgumentParser(
@@ -45,19 +49,17 @@ def argument_parser():
 
     return args, experiment_args_dict
 
-def main(amc:str, folder: str, exp_args: dict):
+def main(amc: str, folder: str, exp_args: dict):
     VECTOR_SIZE = 32  # This is a complication | We would need to know the number of flows beforehand | Can we set it on the fly?
     NS3_PATH = os.getcwd().split("scratch")[0]  # Let's set it dynamically
-    # EXEC_SETTINGS = {"useAI": True, "verbose": True}  # " --frequency=xx"
-    # FOLDER = os.getcwd() + "/out/" + "ai-exp-execution-" + strftime("%Y_%m_%d-%H_%M_%S", localtime()) 
     NS3_SETTINGS = f" --cwd={folder} --no-build"
     EXP_NAME = "ccaperf-exec" + NS3_SETTINGS
     SEGMENT_HASH = str(hash(folder))
     exp_args["aiSegmentName"] = SEGMENT_HASH
 
-    amc_final=args.amc.lower()
+    amc_final = amc.lower()
 
-    print(f"El valor de amc recibido es: {amc_final}" )
+    print(f"El valor de amc recibido es: {amc_final}")
     print(f"El valor de amc a usar es: {AMC_FUNC[amc_final]}")
 
     amc_manager = AmcManager(AMC_FUNC[amc_final], folder)
@@ -66,37 +68,58 @@ def main(amc:str, folder: str, exp_args: dict):
         os.mkdir(folder)
     
     exp = Experiment(EXP_NAME, NS3_PATH, py_binding,
-                    handleFinish=True, useVector=True, vectorSize=VECTOR_SIZE, segName=SEGMENT_HASH)
+                     handleFinish=True, useVector=True, vectorSize=VECTOR_SIZE, segName=SEGMENT_HASH)
     msgInterface = exp.run(show_output=True, setting=exp_args)
     print(f"NS3AI Memory space name: {SEGMENT_HASH}", flush=True)
-    try:
 
+    # Establecer el timeout (en segundos)
+    timeout_duration = 5  # 300 segundos = 5 minutos (cambia según lo necesario)
+    signal.signal(signal.SIGALRM, handler_timeout)
+    signal.alarm(timeout_duration)  # Establecer el tiempo límite de la alarma
+
+    start_time = time()  # Registrar el inicio del proceso
+
+    try:
         while True:
-            # receive from C++ side
+            # Verificar si ha pasado demasiado tiempo
+            if time() - start_time > timeout_duration:
+                raise TimeoutError("Timeout reached during execution")
+
+            # Recibir del lado C++
             msgInterface.PyRecvBegin()
             if msgInterface.PyGetFinished():
                 break
 
-            # send to C++ side
+            # Enviar al lado C++
             msgInterface.PySendBegin()
-            # for i in range(len(msgInterface.GetCpp2PyVector())):
-                # calculate the sums
             vector_data = msgInterface.GetCpp2PyVector()[0]
             _sinr_eff = vector_data.sinr_eff
             _simulation_time = vector_data.simulation_time
-            bler = amc_manager(0,sinr_eff=_sinr_eff,simulation_time=_simulation_time)
+            bler = amc_manager(0, sinr_eff=_sinr_eff, simulation_time=_simulation_time)
             msgInterface.GetPy2CppVector()[0].bler_target = bler
-                # vector_data.just_called = False
-                
+
             msgInterface.PyRecvEnd()
             msgInterface.PySendEnd()
+
+    except TimeoutError as e:
+        print(f"TimeoutError: {e}")
+        # Terminar el experimento y liberar recursos
+        print("Timeout reached, exiting...")
+        if exp.proc:
+            exp.proc.terminate()  # Terminar el proceso asociado con la simulación
+            print("Simulation process terminated.")
+        # Verificar si simCmd es un proceso y terminarlo
+        if isinstance(exp.simCmd, subprocess.Popen):
+            exp.simCmd.terminate()  # Terminar el proceso asociado con la simulación
+            print("SimCmd process terminated.")
+        sys.exit(1)
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         print("Exception occurred: {}".format(e))
         print("Traceback:")
         traceback.print_tb(exc_traceback)
-        exit(1)
+        sys.exit(1)
 
     else:
         pass
@@ -104,6 +127,7 @@ def main(amc:str, folder: str, exp_args: dict):
     finally:
         print("Finally exiting...")
         del exp
+        signal.alarm(0)
 
 if __name__ == "__main__":
     args, exp_args = argument_parser()
