@@ -62,7 +62,7 @@ def main(amc: str, folder: str, exp_args: dict):
     amc_final = amc.lower()
 
     print(f"El valor de amc recibido es: {amc_final}")
-    print(f"El valor de amc a usar es: {AMC_FUNC[amc_final]}")
+    print(f"El valor de amc a usar es: {AMC_OPTS[amc_final]}")
 
     amc_manager = AmcManager(AMC_FUNC[amc_final], folder)
 
@@ -75,7 +75,7 @@ def main(amc: str, folder: str, exp_args: dict):
     print(f"NS3AI Memory space name: {SEGMENT_HASH}", flush=True)
 
     # Establecer el timeout (en segundos)
-    timeout_duration = 1500  # 300 segundos = 5 minutos (cambia según lo necesario)
+    timeout_duration = 3600  # 300 segundos = 5 minutos (cambia según lo necesario)
     signal.signal(signal.SIGALRM, handler_timeout)
     signal.alarm(timeout_duration)  # Establecer el tiempo límite de la alarma
 

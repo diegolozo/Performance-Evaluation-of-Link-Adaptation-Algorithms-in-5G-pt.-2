@@ -533,7 +533,7 @@ if [ "$useAI" == "0" ]; then
       " --cwd "$outfolder/$bkfolder" --no-build
 else
    # $ns3home/ns3 run "`echo ccaperf-exec`
-   TIMEOUT_LIMIT=300
+   TIMEOUT_LIMIT=3600
    timeout $TIMEOUT_LIMIT python3 cca-perf.py\
       --frequency=`echo $frequency`\
       --bandwidth=`echo $bandwidth`\
@@ -572,6 +572,7 @@ else
       --CustomLoss=`echo $CustomLoss`\
       --CustomLossLos=`echo $CustomLossLos`\
       --CustomLossNlos=`echo $CustomLossNlos`\
+      --amc `echo $amc`\
       --cwd "$outfolder/$bkfolder" # It never builds (!)
 fi
       # --amc `echo $amc`\
@@ -643,12 +644,12 @@ fi
 # ./packet-error-rate.sh $outfolder/$bkfolder
 
 
-# echo
-# printf "Running... Graph Script\n"
-# echo
+echo
+printf "Running... Graph Script\n"
+echo
 
-# echo "python3 cca-perf-graph.py $outfolder/$bkfolder"
-# python3 cca-perf-graph.py $outfolder/$bkfolder
+echo "python3 cca-perf-graph.py $outfolder/$bkfolder"
+python3 cca-perf-graph.py $outfolder/$bkfolder
 
 # echo
 # printf "Compressing files\n"

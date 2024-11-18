@@ -27,7 +27,7 @@ class AmcLog:
         self.create_log_file()
 
     def create_log_file(self):
-        first_row = "Time;SINR Eff;BLER Target\n"
+        first_row = "Time;SINR Eff;BLER Target;Gamma\n"
         with open(self.file_name, "w") as amc_log:
             amc_log.write(first_row)
         return
@@ -36,7 +36,8 @@ class AmcLog:
         Time = kwds["simulation_time"]
         SINR_Eff = kwds["sinr_eff"]
         BLER_Target = kwds["bler_target"]
-        current_row = f"{Time};{SINR_Eff};{BLER_Target}\n"
+        Gamma = kwds["gamma"]
+        current_row = f"{Time};{SINR_Eff};{BLER_Target};{Gamma}\n"
         with open(self.file_name, "a") as amc_log:
             amc_log.write(current_row)
         return
@@ -49,18 +50,31 @@ class Exp_Mean_Bler:
 
     """
     def __init__(self,flow_id,*args: Any, **kwds: Any) -> None:
+      self.SMOOTH_FACTOR = 0.2
+      self.ALPHA = 0.3
+      self.BETA = -0.08
+      self.FIXED_BLER_TARGET = 0.1
+      self.gamma_smoothed = 10
       self.LOG = AmcLog("Exp_Mean_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
 
     def __call__(self, *args: Any, **kwds: Any) -> bool:
       simulation_time = kwds["simulation_time"]
       sinr_eff_db = kwds['sinr_eff']
+      sinr_eff_db = min(sinr_eff_db, 30) 
 
-      bler_target = 0.1
+      new_gamma_smoothed = self.SMOOTH_FACTOR * sinr_eff_db + (1 - self.SMOOTH_FACTOR) * self.gamma_smoothed
+      self.gamma_smoothed = new_gamma_smoothed 
 
-        self.LOG.write_log_file(simulation_time = simulation_time,
-                                sinr_eff = sinr_eff_db,
-                                bler_target = bler_target
-                              )      
+      if sinr_eff_db <= new_gamma_smoothed:
+        bler_target = self.ALPHA * np.exp(self.BETA * sinr_eff_db)
+      else:
+        bler_target = self.FIXED_BLER_TARGET
+
+      self.LOG.write_log_file(simulation_time = simulation_time,
+                              sinr_eff = sinr_eff_db,
+                              bler_target = bler_target,
+                              gamma = new_gamma_smoothed
+                            )      
       return bler_target
 
 class Q_Learn_BLER:
@@ -70,17 +84,62 @@ class Q_Learn_BLER:
       Attributes:
 
     """
-    def __init__(self,flow_id,*args: Any, **kwds: Any) -> None:
-      self.LOG = AmcLog("Q_Learn_BLER", flow_id, kwds.get("__log_folder", os.getcwd()))
+    def __init__(self,flow_id,*args: Any, **kwds: Any):
+      self.ALPHA = 0.3
+      self.BETA = -0.08
+      self.FIXED_BLER_TARGET = 0.1
+
+      self.temperature = 1.0
+      self.temperature_decay = 0.995 
+      self.temperature_min = 0.1
+
+      self.gamma_values = np.linspace(5, 15, num=100)
+      self.Q_table = np.zeros(len(gamma_values))
+      self.learn_rate = 0.1 
+      self.gamma_discount = 0.9   
+      self.LOG = AmcLog("Q-Learn_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
+
+    def decay_temperature(self):
+        if self.temperature > self.temperature_min:
+            self.temperature *= self.temperature_decay
+
+    def choose_gamma(self):
+        q_values = self.Q_table - np.max(self.Q_table)
+        exp_q = np.exp(q_values / self.temperature)
+        probabilities = exp_q / np.sum(exp_q)
+        return np.random.choice(len(self.gamma_values), p=probabilities)
+
+    def update_q(self, gamma_index, reward):
+        self.Q_table[gamma_index] += self.learn_rate * (reward - self.Q_table[gamma_index])
+
+    def bler_reward(self, sinr_eff_db, gamma):
+        if sinr_eff_db <= gamma:
+          bler_estimated = self.ALPHA * np.exp(self.BETA * sinr_eff_db)
+        else:
+          bler_estimated = self.FIXED_BLER_TARGET
+        
+        reward = -abs(bler_estimated - self.FIXED_BLER_TARGET)  
+        
+        if gamma < 5 or gamma > 15:
+            reward -= 5 
+        
+        return reward, bler_estimated
 
     def __call__(self, *args: Any, **kwds: Any) -> bool:
       simulation_time = kwds["simulation_time"]
       sinr_eff_db = kwds['sinr_eff']
+      sinr_eff_db = min(sinr_eff_db, 30) 
 
-      bler_target = 0.1
+      gamma_index = self.choose_gamma()
+      gamma = self.gamma_values[gamma_index]
+      reward, bler_estimated = self.bler_reward(sinr_eff_db, gamma)  
+      self.update_q(gamma_index, reward)
+      self.decay_temperature()
+
 
       self.LOG.write_log_file(simulation_time = simulation_time,
                               sinr_eff = sinr_eff_db,
-                              bler_target = bler_target
+                              bler_target = bler_estimated,
+                              gamma = gamma
                               )      
-      return bler_target
+      return bler_estimated
