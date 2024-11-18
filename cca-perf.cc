@@ -1275,7 +1275,7 @@ int main(int argc, char* argv[]) {
     // remHelper->SetSimTag("rem");
 
     // remHelper->SetRemMode(NrRadioEnvironmentMapHelper::COVERAGE_AREA);
-    // remHelper->CreateRem(enbNetDev.Get(0), ueNetDev.Get(0), 0);
+    // remHelper->CreateRem(gnbNetDev.Get(0), ueNetDev.Get(0), 0);
 
     if (verbose){
         std::cout << "Run Simulation"<< std::endl ;

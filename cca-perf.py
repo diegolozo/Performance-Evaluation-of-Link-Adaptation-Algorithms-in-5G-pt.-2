@@ -7,15 +7,17 @@ import argparse
 import signal
 from time import localtime, strftime, time  # For the time being
 import subprocess
-from lib.amc import AmcManager, Python_Bler
+from lib.amc import AmcManager, Exp_Mean_Bler, Q_Learn_BLER
 
 AMC_OPTS = {
-      "python_bler_target": 5
+      "exp_mean_bler_target": 5,
+      "q_learn_bler_target": 6
 }
 
 
 AMC_FUNC = {
-      "python_bler_target": Python_Bler
+      "exp_mean_bler_target": Exp_Mean_Bler,
+      "q_learn_bler_target": Q_Learn_BLER
 }
 
 def handler_timeout(signum, frame):
@@ -28,7 +30,7 @@ def argument_parser():
         epilog="Thanks to ns3-ai team for their work. Made by AG-DT."
     )
 
-    parser.add_argument("--amc", default="python_bler_target", help="")
+    parser.add_argument("--amc", default="exp_mean_bler_target", help="")
 
     parser.add_argument("--cwd", default=os.getcwd(), help="Directory where the experiment results will be saved.")
     args, unknown_args = parser.parse_known_args()
@@ -73,7 +75,7 @@ def main(amc: str, folder: str, exp_args: dict):
     print(f"NS3AI Memory space name: {SEGMENT_HASH}", flush=True)
 
     # Establecer el timeout (en segundos)
-    timeout_duration = 5  # 300 segundos = 5 minutos (cambia según lo necesario)
+    timeout_duration = 1500  # 300 segundos = 5 minutos (cambia según lo necesario)
     signal.signal(signal.SIGALRM, handler_timeout)
     signal.alarm(timeout_duration)  # Establecer el tiempo límite de la alarma
 

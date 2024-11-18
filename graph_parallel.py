@@ -163,7 +163,7 @@ def violinGraphThr(data):
             thrs.append(thr)
 
         dii = dict(A1=r"$10\%$", A2=r"$30\%$",
-                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$python$")
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$ExpMean$", A6=r"$Q-Learn$")
         aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
         vals = np.array(thrs, dtype=float).T
         df = pd.DataFrame(data=vals, columns=aaa)
@@ -212,8 +212,8 @@ def violinGraphDelay(data):
                 thr = thr + [np.nan] * (max_len - len(thr))
             thrs.append(thr)
 
-        dii = dict(A1=r"$BLER_{10\%}$", A2=r"$BLER_{30\%}$",
-                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$", A5=r"$BLER_{python}$")
+        dii = dict(A1=r"$10\%$", A2=r"$30\%$",
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$ExpMean$", A6=r"$Q-Learn$")
         aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
 
         vals = np.array(thrs, dtype=float).T
@@ -282,8 +282,8 @@ def stackedbar_graph_rtx():
     for pos, ax in enumerate(axes):
         bottom = np.zeros(len(data[pos]["labels"]))
 
-        dii = dict(A1=r"$BLER_{10\%}$", A2=r"$BLER_{30\%}$",
-                   A3=r"$BLER_{dyn}$", A4=r"$BLER_{hyb}$", A5=r"$BLER_{python}$")
+        dii = dict(A1=r"$10\%$", A2=r"$30\%$",
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$ExpMean$", A6=r"$Q-Learn$")
         aaa = list(map(lambda x: dii[x], data[pos]["labels"]))
 
         for i, nrtx in enumerate(["Failed", "No Re-TX",

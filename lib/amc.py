@@ -41,31 +41,43 @@ class AmcLog:
             amc_log.write(current_row)
         return
 
-class Python_Bler:
+class Exp_Mean_Bler:
     """
-      Implementation of Python Bler Target algorithm.
+      Implementation of Exponential Mobile Mean Bler Target algorithm.
 
       Attributes:
-        ALPHA (float)
-        BETA (float)
-        GAMMA (float)
-        FIXED_BLER_TARGET (float)
+
     """
     def __init__(self,flow_id,*args: Any, **kwds: Any) -> None:
-      self.ALPHA = 0.3
-      self.BETA = -0.08
-      self.GAMMA = 10.0
-      self.FIXED_BLER_TARGET = 0.1
-      self.LOG = AmcLog("Python_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
+      self.LOG = AmcLog("Exp_Mean_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
 
     def __call__(self, *args: Any, **kwds: Any) -> bool:
       simulation_time = kwds["simulation_time"]
       sinr_eff_db = kwds['sinr_eff']
 
-      if sinr_eff_db <= self.GAMMA:
-        bler_target = self.ALPHA * np.exp(self.BETA * sinr_eff_db)
-      else:
-        bler_target = self.FIXED_BLER_TARGET
+      bler_target = 0.1
+
+        self.LOG.write_log_file(simulation_time = simulation_time,
+                                sinr_eff = sinr_eff_db,
+                                bler_target = bler_target
+                              )      
+      return bler_target
+
+class Q_Learn_BLER:
+    """
+      Implementation of Q-Learning Bler Target algorithm.
+
+      Attributes:
+
+    """
+    def __init__(self,flow_id,*args: Any, **kwds: Any) -> None:
+      self.LOG = AmcLog("Q_Learn_BLER", flow_id, kwds.get("__log_folder", os.getcwd()))
+
+    def __call__(self, *args: Any, **kwds: Any) -> bool:
+      simulation_time = kwds["simulation_time"]
+      sinr_eff_db = kwds['sinr_eff']
+
+      bler_target = 0.1
 
       self.LOG.write_log_file(simulation_time = simulation_time,
                               sinr_eff = sinr_eff_db,
