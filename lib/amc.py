@@ -8,7 +8,7 @@ import os
 class AmcManager:
 
     def __init__(self, amc_type,folder):
-      self.amc_type = amc_type # exp, hybrid, moving average
+      self.amc_type = amc_type # exp moving average and Q-Learning
       self.flow_dict = dict()
       self.folder = folder
 
@@ -89,28 +89,52 @@ class Q_Learn_BLER:
       self.BETA = -0.08
       self.FIXED_BLER_TARGET = 0.1
 
+      # PROBAAAAAAR
+      # self.FIXED_BLER_TARGET = 0.3
+
+
       self.temperature = 1.0
       self.temperature_decay = 0.995 
       self.temperature_min = 0.1
 
-      self.gamma_values = np.linspace(5, 15, num=100)
-      self.Q_table = np.zeros(len(gamma_values))
-      self.learn_rate = 0.1 
-      self.gamma_discount = 0.9   
+      # self.gamma_values = np.linspace(5, 15, num=100)
+      # self.gamma_values = np.linspace(5, 15, num=20)
+
+      # PROBAAAAR
+      self.gamma_values = np.linspace(8, 12, num=20)
+
+      
+      self.Q_table = np.zeros(len(self.gamma_values))
+      # self.learn_rate = 0.1
+      # self.learn_rate = 0.05 
+
+      # PROBAAAAAR
+      self.learn_rate = 0.3
+
+
+      # self.gamma_discount = 0.9
+      self.gamma_discount = 0   
       self.LOG = AmcLog("Q-Learn_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
 
     def decay_temperature(self):
         if self.temperature > self.temperature_min:
             self.temperature *= self.temperature_decay
 
+    # def choose_gamma(self):
+    #     q_values = self.Q_table - np.max(self.Q_table)
+    #     exp_q = np.exp(q_values / self.temperature)
+    #     probabilities = exp_q / np.sum(exp_q)
+    #     return np.random.choice(len(self.gamma_values), p=probabilities)
     def choose_gamma(self):
-        q_values = self.Q_table - np.max(self.Q_table)
-        exp_q = np.exp(q_values / self.temperature)
-        probabilities = exp_q / np.sum(exp_q)
-        return np.random.choice(len(self.gamma_values), p=probabilities)
+        if np.random.rand() < 0.1:  # 10% exploración
+            return np.random.randint(len(self.gamma_values))
+        else:
+            return np.argmax(self.Q_table)
+
 
     def update_q(self, gamma_index, reward):
-        self.Q_table[gamma_index] += self.learn_rate * (reward - self.Q_table[gamma_index])
+        max_future_q = np.max(self.Q_table)
+        self.Q_table[gamma_index] += self.learn_rate * (reward + self.gamma_discount * max_future_q - self.Q_table[gamma_index])
 
     def bler_reward(self, sinr_eff_db, gamma):
         if sinr_eff_db <= gamma:
@@ -119,9 +143,14 @@ class Q_Learn_BLER:
           bler_estimated = self.FIXED_BLER_TARGET
         
         reward = -abs(bler_estimated - self.FIXED_BLER_TARGET)  
-        
+
+        if abs(reward) < 0.01:
+            reward += 1  
+
         if gamma < 5 or gamma > 15:
-            reward -= 5 
+            penalty = abs(10 - gamma) * 0.1  
+            reward -= penalty
+
         
         return reward, bler_estimated
 

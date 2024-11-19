@@ -75,7 +75,7 @@ def main(amc: str, folder: str, exp_args: dict):
     print(f"NS3AI Memory space name: {SEGMENT_HASH}", flush=True)
 
     # Establecer el timeout (en segundos)
-    timeout_duration = 3600  # 300 segundos = 5 minutos (cambia según lo necesario)
+    timeout_duration = 7200  # 300 segundos = 5 minutos (cambia según lo necesario)
     signal.signal(signal.SIGALRM, handler_timeout)
     signal.alarm(timeout_duration)  # Establecer el tiempo límite de la alarma
 

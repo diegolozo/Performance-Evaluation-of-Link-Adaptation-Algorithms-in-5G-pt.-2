@@ -153,7 +153,7 @@ def violinGraphThr(data):
         axes = [axes]
     
     axes[0].set_ylabel("Throughput [Mb/s]")
-    palettes = [sns.color_palette("Set1")[:5], sns.color_palette("Pastel1")[:5]]
+    palettes = [sns.color_palette("Set1")[:6], sns.color_palette("Pastel1")[:6]]
     for pos, ax in enumerate(axes):
         max_len = len(sorted(data[pos]["data"], key=lambda x: len(x))[-1])
         thrs = []
@@ -222,7 +222,7 @@ def violinGraphDelay(data):
         # df.to_csv("DelayDf.txt", sep="\t", encoding="utf-8")
 
         # Paleta limitada a 4 colores para cada gráfico
-        current_palette = sns.color_palette("Set1")[:5] if pos % 2 == 0 else sns.color_palette("Pastel1")[:5]
+        current_palette = sns.color_palette("Set1")[:6] if pos % 2 == 0 else sns.color_palette("Pastel1")[:6]
         
         sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=current_palette)
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
