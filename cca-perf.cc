@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <iomanip>
 #include <iostream>
+#include <map>
 
 /* Include custom libraries (aux files for the simulation) */
 #include "cmdline-colors.h"
@@ -42,6 +43,8 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE ("cca-perf");
 
 /* Global Variables */
+
+std::map<ns3::FlowId, uint64_t> rxBytesOldMap;
 
 auto itime = std::chrono::high_resolution_clock::now(); // Initial time
 auto tic = std::chrono::high_resolution_clock::now();   // Initial time per cycle
@@ -88,6 +91,17 @@ static void AddRandomNoise(Ptr<NrPhy> ue_phy);
 static void PrintNodeAddressInfo(bool ignore_localh);
 static void processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowmonHelper, double AppStartTime);
 static void ShowStatus();
+
+static void ProcessFlowMonitorCallback();
+
+static Ptr<FlowMonitor> globalMonitor;
+static Ptr<ns3::FlowClassifier> globalFlowClassifier;
+static double globalAppStartTime;
+
+static void ProcessFlowMonitorCallback()
+{
+    processFlowMonitor(globalMonitor, globalFlowClassifier, globalAppStartTime);
+}
 
 
 
@@ -1281,11 +1295,19 @@ int main(int argc, char* argv[]) {
         std::cout << "Run Simulation"<< std::endl ;
     }
 
+    globalMonitor = monitor;
+    globalFlowClassifier = flowmonHelper.GetClassifier();
+    globalAppStartTime = AppStartTime;
+
+    Simulator::Schedule(Seconds(0.5), &ProcessFlowMonitorCallback);
 
     Simulator::Stop(Seconds(simTime));
     Simulator::Run();
 
-    processFlowMonitor(monitor, flowmonHelper.GetClassifier(), AppStartTime);
+    // static std::map<FlowId, uint64_t> rxBytesOldMap;
+    // Simulator::Schedule(Seconds(1.0), processFlowMonitor(monitor, flowmonHelper.GetClassifier(), AppStartTime));
+    // processFlowMonitor(monitor, flowmonHelper.GetClassifier(), AppStartTime);
+
 
     Simulator::Destroy();
     mymcf.close();
@@ -1830,13 +1852,11 @@ static void PrintNodeAddressInfo(bool ignore_localh)
     }
 }
 
-static void
-processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowClassifier, double AppStartTime)
+static void processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowClassifier, double AppStartTime)
 {
-    // Print per-flow statistics
+    std::cout << "FLOW MONITOR: VOY A ESCRIBIR :) " << Simulator::Now ().GetSeconds ()  <<std::endl;
     monitor->CheckForLostPackets();
-    Ptr<Ipv4FlowClassifier> classifier =
-        DynamicCast<Ipv4FlowClassifier>(flowClassifier);
+    Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowClassifier);
     FlowMonitor::FlowStatsContainer stats = monitor->GetFlowStats();
 
     double averageFlowThroughput = 0.0;
@@ -1853,11 +1873,10 @@ processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowClassi
 
     outFile.setf(std::ios_base::fixed);
 
-    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator i = stats.begin();
-         i != stats.end();
-         ++i)
+    for (auto i = stats.begin(); i != stats.end(); ++i)
     {
         Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(i->first);
+
         std::stringstream protoStream;
         protoStream << (uint16_t)t.protocol;
         if (t.protocol == 6)
@@ -1868,30 +1887,34 @@ processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowClassi
         {
             protoStream.str("UDP");
         }
+
         outFile << "Flow " << i->first << " (" << t.sourceAddress << ":" << t.sourcePort << " -> "
                 << t.destinationAddress << ":" << t.destinationPort << ") proto "
                 << protoStream.str() << "\n";
-        outFile << "  Tx Packets: " << i->second.txPackets << "\n";
-        outFile << "  Tx Bytes:   " << i->second.txBytes << "\n";
-        outFile << "  TxOffered:  "
-                << i->second.txBytes * 8.0 / (simTime - AppStartTime) / 1000 / 1000 << " Mbps\n";
-        outFile << "  Rx Bytes:   " << i->second.rxBytes << "\n";
+
+        // Obtener el rxBytes actual
+        uint64_t rxBytesCurrent = i->second.rxBytes;
+
+        // Obtener el rxBytes anterior para este FlowId
+        uint64_t rxBytesOld = rxBytesOldMap[i->first];
+
+        // Calcular instantThroughput
+        double interval = 0.5; // Intervalo entre llamadas a esta función (en segundos)
+        double instantThroughput = (rxBytesCurrent - rxBytesOld) * 8.0 / interval / 1000 / 1000; // Mbps
+
+        // Actualizar el valor antiguo
+        rxBytesOldMap[i->first] = rxBytesCurrent;
+
+        outFile << "  Rx Bytes:   " << rxBytesCurrent << "\n";
+        outFile << "  instantThroughput: " << instantThroughput << " Mbps\n";
+
         if (i->second.rxPackets > 0)
         {
-            // Measure the duration of the flow from receiver's perspective
-            // double rxDuration = i->second.timeLastRxPacket.GetSeconds () -
-            // i->second.timeFirstTxPacket.GetSeconds ();
-            double rxDuration = (simTime - AppStartTime);
-
-            averageFlowThroughput += i->second.rxBytes * 8.0 / rxDuration / 1000 / 1000;
+            averageFlowThroughput += instantThroughput;
             averageFlowDelay += 1000 * i->second.delaySum.GetSeconds() / i->second.rxPackets;
 
-            outFile << "  Throughput: " << i->second.rxBytes * 8.0 / rxDuration / 1000 / 1000
-                    << " Mbps\n";
             outFile << "  Mean delay:  "
                     << 1000 * i->second.delaySum.GetSeconds() / i->second.rxPackets << " ms\n";
-            // outFile << "  Mean upt:  " << i->second.uptSum / i->second.rxPackets / 1000/1000 << "
-            // Mbps \n";
             outFile << "  Mean jitter:  "
                     << 1000 * i->second.jitterSum.GetSeconds() / i->second.rxPackets << " ms\n";
         }
@@ -1907,6 +1930,6 @@ processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowClassi
 
     outFile << "\n\n  Mean flow throughput: " << averageFlowThroughput / stats.size() << "\n";
     outFile << "  Mean flow delay: " << averageFlowDelay / stats.size() << "\n";
-
     outFile.close();
+    Simulator::Schedule(Seconds(0.5), &ProcessFlowMonitorCallback);
 }

@@ -2,6 +2,7 @@ from typing import Any
 import random
 import time
 import numpy as np
+import re
 import os
 
 
@@ -115,6 +116,28 @@ class Q_Learn_BLER:
       # self.gamma_discount = 0.9
       self.gamma_discount = 0   
       self.LOG = AmcLog("Q-Learn_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
+      self.folder = kwds["__log_folder"]
+
+    def extract_instant_throughput(self, file_path):
+        """
+        Extrae el throughput instantáneo del archivo FlowOutput.txt.
+        """
+        instant_throughput = None
+        pattern = r"Throughput instantáneo: ([\d\.]+) Mbps"
+
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    match = re.search(pattern, line)
+                    if match:
+                        instant_throughput = float(match.group(1))
+                        break
+        except FileNotFoundError:
+            instant_throughput = 0
+        except Exception as e:
+            print(f"Error al leer el archivo: {e}")
+
+        return instant_throughput
 
     def decay_temperature(self):
         if self.temperature > self.temperature_min:
@@ -155,13 +178,23 @@ class Q_Learn_BLER:
         return reward, bler_estimated
 
     def __call__(self, *args: Any, **kwds: Any) -> bool:
+
+      file_path = os.path.join(self.folder, "FlowOutput.txt")
+      # Extraer throughput instantáneo
+      throughput = self.extract_instant_throughput(file_path)
+      if throughput is None:
+          throughput = 0
+      else:
+          print(f"El THP es: {throughput}")
       simulation_time = kwds["simulation_time"]
       sinr_eff_db = kwds['sinr_eff']
       sinr_eff_db = min(sinr_eff_db, 30) 
 
       gamma_index = self.choose_gamma()
       gamma = self.gamma_values[gamma_index]
-      reward, bler_estimated = self.bler_reward(sinr_eff_db, gamma)  
+      reward, bler_estimated = self.bler_reward(sinr_eff_db, gamma)
+      if   throughput >0:
+          reward += throughput * 0.1  # Peso ajustable
       self.update_q(gamma_index, reward)
       self.decay_temperature()
 
