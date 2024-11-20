@@ -153,7 +153,7 @@ def violinGraphThr(data):
         axes = [axes]
     
     axes[0].set_ylabel("Throughput [Mb/s]")
-    palettes = [sns.color_palette("Set1")[:6], sns.color_palette("Pastel1")[:6]]
+    palettes = [sns.color_palette("Set1")[:5], sns.color_palette("Pastel1")[:5]]
     for pos, ax in enumerate(axes):
         max_len = len(sorted(data[pos]["data"], key=lambda x: len(x))[-1])
         thrs = []
@@ -163,7 +163,7 @@ def violinGraphThr(data):
             thrs.append(thr)
 
         dii = dict(A1=r"$10\%$", A2=r"$30\%$",
-                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$ExpMean$", A6=r"$Q-Learn$")
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$Exp$", A6=r"$QLearn$")
         aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
         vals = np.array(thrs, dtype=float).T
         df = pd.DataFrame(data=vals, columns=aaa)
@@ -213,7 +213,7 @@ def violinGraphDelay(data):
             thrs.append(thr)
 
         dii = dict(A1=r"$10\%$", A2=r"$30\%$",
-                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$ExpMean$", A6=r"$Q-Learn$")
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$Exp$", A6=r"$QLearn$")
         aaa = list(map(lambda x: dii.get(x, x), data[pos]["labels"]))
 
         vals = np.array(thrs, dtype=float).T
@@ -222,7 +222,7 @@ def violinGraphDelay(data):
         # df.to_csv("DelayDf.txt", sep="\t", encoding="utf-8")
 
         # Paleta limitada a 4 colores para cada gráfico
-        current_palette = sns.color_palette("Set1")[:6] if pos % 2 == 0 else sns.color_palette("Pastel1")[:6]
+        current_palette = sns.color_palette("Set1")[:5] if pos % 2 == 0 else sns.color_palette("Pastel1")[:5]
         
         sns.violinplot(data=df, ax=ax, cut=0, inner=None, palette=current_palette)
         sns.pointplot(data=df, estimator=np.mean, color="black", ax=ax,
@@ -283,7 +283,7 @@ def stackedbar_graph_rtx():
         bottom = np.zeros(len(data[pos]["labels"]))
 
         dii = dict(A1=r"$10\%$", A2=r"$30\%$",
-                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$ExpMean$", A6=r"$Q-Learn$")
+                   A3=r"$dyn$", A4=r"$hyb$", A5=r"$Exp$", A6=r"$QLearn$")
         aaa = list(map(lambda x: dii[x], data[pos]["labels"]))
 
         for i, nrtx in enumerate(["Failed", "No Re-TX",

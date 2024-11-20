@@ -88,10 +88,10 @@ class Q_Learn_BLER:
     def __init__(self,flow_id,*args: Any, **kwds: Any):
       self.ALPHA = 0.3
       self.BETA = -0.08
-      self.FIXED_BLER_TARGET = 0.1
+      # self.FIXED_BLER_TARGET = 0.1
 
       # PROBAAAAAAR
-      # self.FIXED_BLER_TARGET = 0.3
+      self.FIXED_BLER_TARGET = 0.3
 
 
       self.temperature = 1.0
@@ -120,20 +120,25 @@ class Q_Learn_BLER:
 
     def extract_instant_throughput(self, file_path):
         """
-        Extrae el throughput instantáneo del archivo FlowOutput.txt.
+        Extrae el instantThroughput del Flow 2 en el archivo FlowOutput.txt.
         """
         instant_throughput = None
-        pattern = r"Throughput instantáneo: ([\d\.]+) Mbps"
+        flow2_found = False
+        pattern_flow2 = r"Flow 2"  # Busca la sección del Flow 2
+        pattern_throughput = r"instantThroughput: ([\d\.]+) Mbps"
 
         try:
             with open(file_path, 'r') as file:
                 for line in file:
-                    match = re.search(pattern, line)
-                    if match:
-                        instant_throughput = float(match.group(1))
-                        break
+                    if re.search(pattern_flow2, line):
+                        flow2_found = True  # Hemos encontrado Flow 2
+                    if flow2_found:
+                        match = re.search(pattern_throughput, line)
+                        if match:
+                            instant_throughput = float(match.group(1))  # En Mbps
+                            break
         except FileNotFoundError:
-            instant_throughput = 0
+            instant_throughput = None
         except Exception as e:
             print(f"Error al leer el archivo: {e}")
 
@@ -184,8 +189,6 @@ class Q_Learn_BLER:
       throughput = self.extract_instant_throughput(file_path)
       if throughput is None:
           throughput = 0
-      else:
-          print(f"El THP es: {throughput}")
       simulation_time = kwds["simulation_time"]
       sinr_eff_db = kwds['sinr_eff']
       sinr_eff_db = min(sinr_eff_db, 30) 
@@ -194,7 +197,7 @@ class Q_Learn_BLER:
       gamma = self.gamma_values[gamma_index]
       reward, bler_estimated = self.bler_reward(sinr_eff_db, gamma)
       if   throughput >0:
-          reward += throughput * 0.1  # Peso ajustable
+          reward += throughput # Peso ajustable
       self.update_q(gamma_index, reward)
       self.decay_temperature()
 

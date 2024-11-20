@@ -110,9 +110,9 @@ for param in "${parameters[@]}"; do
 
         param2=$param;
         if [ "$random" == "1" ]; then
-            # z_value=$(expr $mont_num + 4)
-            # param2="$param -z $z_value"
-            param2="$param -z $mont_num"
+            z_value=$(expr $mont_num + 4)
+            param2="$param -z $z_value"
+            # param2="$param -z $mont_num"
         fi
 
         stdoutTxt=$basehome/out/$outdir/outputs/sim${mont_num}.txt

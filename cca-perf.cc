@@ -1854,7 +1854,6 @@ static void PrintNodeAddressInfo(bool ignore_localh)
 
 static void processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier> flowClassifier, double AppStartTime)
 {
-    std::cout << "FLOW MONITOR: VOY A ESCRIBIR :) " << Simulator::Now ().GetSeconds ()  <<std::endl;
     monitor->CheckForLostPackets();
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowClassifier);
     FlowMonitor::FlowStatsContainer stats = monitor->GetFlowStats();
@@ -1910,7 +1909,8 @@ static void processFlowMonitor(Ptr<FlowMonitor> monitor, Ptr<ns3::FlowClassifier
 
         if (i->second.rxPackets > 0)
         {
-            averageFlowThroughput += instantThroughput;
+            double rxDuration = (simTime - AppStartTime);
+            averageFlowThroughput += i->second.rxBytes * 8.0 / rxDuration / 1000 / 1000;
             averageFlowDelay += 1000 * i->second.delaySum.GetSeconds() / i->second.rxPackets;
 
             outFile << "  Mean delay:  "
