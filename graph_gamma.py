@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def plot_gamma_vs_time(file_path):
 
     if not os.path.exists(file_path):
-        print(f"The fila: '{file_path}' does not exist.")
+        print(f"The row: '{file_path}' does not exist.")
         return
     try:
         data = pd.read_csv(file_path, delimiter=";", skipinitialspace=True)

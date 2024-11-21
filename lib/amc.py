@@ -88,54 +88,31 @@ class Q_Learn_BLER:
     def __init__(self,flow_id,*args: Any, **kwds: Any):
       self.ALPHA = 0.3
       self.BETA = -0.08
-      # self.FIXED_BLER_TARGET = 0.1
-
-      # PROBAAAAAAR
       self.FIXED_BLER_TARGET = 0.3
 
-
-      self.temperature = 1.0
-      self.temperature_decay = 0.995 
-      self.temperature_min = 0.1
-
-      # self.gamma_values = np.linspace(5, 15, num=100)
-      # self.gamma_values = np.linspace(5, 15, num=20)
-
-      # PROBAAAAR
       self.gamma_values = np.linspace(8, 12, num=20)
-
-      
       self.Q_table = np.zeros(len(self.gamma_values))
-      # self.learn_rate = 0.1
-      # self.learn_rate = 0.05 
-
-      # PROBAAAAAR
       self.learn_rate = 0.3
+      self.gamma_discount = 0.9
 
-
-      # self.gamma_discount = 0.9
-      self.gamma_discount = 0   
       self.LOG = AmcLog("Q-Learn_Bler", flow_id, kwds.get("__log_folder", os.getcwd()))
       self.folder = kwds["__log_folder"]
 
     def extract_instant_throughput(self, file_path):
-        """
-        Extrae el instantThroughput del Flow 2 en el archivo FlowOutput.txt.
-        """
         instant_throughput = None
         flow2_found = False
-        pattern_flow2 = r"Flow 2"  # Busca la sección del Flow 2
+        pattern_flow2 = r"Flow 2"
         pattern_throughput = r"instantThroughput: ([\d\.]+) Mbps"
 
         try:
             with open(file_path, 'r') as file:
                 for line in file:
                     if re.search(pattern_flow2, line):
-                        flow2_found = True  # Hemos encontrado Flow 2
+                        flow2_found = True  
                     if flow2_found:
                         match = re.search(pattern_throughput, line)
                         if match:
-                            instant_throughput = float(match.group(1))  # En Mbps
+                            instant_throughput = float(match.group(1)) 
                             break
         except FileNotFoundError:
             instant_throughput = None
@@ -144,17 +121,8 @@ class Q_Learn_BLER:
 
         return instant_throughput
 
-    def decay_temperature(self):
-        if self.temperature > self.temperature_min:
-            self.temperature *= self.temperature_decay
-
-    # def choose_gamma(self):
-    #     q_values = self.Q_table - np.max(self.Q_table)
-    #     exp_q = np.exp(q_values / self.temperature)
-    #     probabilities = exp_q / np.sum(exp_q)
-    #     return np.random.choice(len(self.gamma_values), p=probabilities)
     def choose_gamma(self):
-        if np.random.rand() < 0.1:  # 10% exploración
+        if np.random.rand() < 0.1:
             return np.random.randint(len(self.gamma_values))
         else:
             return np.argmax(self.Q_table)
@@ -175,7 +143,7 @@ class Q_Learn_BLER:
         if abs(reward) < 0.01:
             reward += 1  
 
-        if gamma < 5 or gamma > 15:
+        if gamma < 8 or gamma > 12:
             penalty = abs(10 - gamma) * 0.1  
             reward -= penalty
 
@@ -185,7 +153,6 @@ class Q_Learn_BLER:
     def __call__(self, *args: Any, **kwds: Any) -> bool:
 
       file_path = os.path.join(self.folder, "FlowOutput.txt")
-      # Extraer throughput instantáneo
       throughput = self.extract_instant_throughput(file_path)
       if throughput is None:
           throughput = 0
@@ -196,11 +163,8 @@ class Q_Learn_BLER:
       gamma_index = self.choose_gamma()
       gamma = self.gamma_values[gamma_index]
       reward, bler_estimated = self.bler_reward(sinr_eff_db, gamma)
-      if   throughput >0:
-          reward += throughput # Peso ajustable
+      reward += throughput
       self.update_q(gamma_index, reward)
-      self.decay_temperature()
-
 
       self.LOG.write_log_file(simulation_time = simulation_time,
                               sinr_eff = sinr_eff_db,

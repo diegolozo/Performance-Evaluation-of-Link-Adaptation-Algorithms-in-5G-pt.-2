@@ -556,7 +556,7 @@ def graph_mobility(myhome):
             ax.add_artist(gNbab)
 
         # Set buildings and trees
-        house = 0
+        house = 1
         if enableBuildings:
             for bld in data['Buildings']:
 
@@ -615,8 +615,8 @@ def graph_mobility(myhome):
 
     ax.scatter([], [], color='blue', label="UE Trajectory")
     ax.legend(loc="upper right")
-    plt.xlim([0,60])
-    plt.ylim([0, 20])
+    plt.xlim([0,100])
+    plt.ylim([0, 100])
     ax.set_xlabel("Distance [m]")
     ax.set_ylabel("Distance [m]")
 

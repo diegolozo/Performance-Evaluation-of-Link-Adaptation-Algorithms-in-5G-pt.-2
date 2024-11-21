@@ -644,12 +644,12 @@ fi
 # ./packet-error-rate.sh $outfolder/$bkfolder
 
 
-# echo
-# printf "Running... Graph Script\n"
-# echo
+echo
+printf "Running... Graph Script\n"
+echo
 
-# echo "python3 cca-perf-graph.py $outfolder/$bkfolder"
-# python3 cca-perf-graph.py $outfolder/$bkfolder
+echo "python3 cca-perf-graph.py $outfolder/$bkfolder"
+python3 cca-perf-graph.py $outfolder/$bkfolder
 
 # echo
 # printf "Compressing files\n"

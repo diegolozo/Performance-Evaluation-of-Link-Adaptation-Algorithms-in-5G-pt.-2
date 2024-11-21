@@ -74,25 +74,22 @@ def main(amc: str, folder: str, exp_args: dict):
     msgInterface = exp.run(show_output=True, setting=exp_args)
     print(f"NS3AI Memory space name: {SEGMENT_HASH}", flush=True)
 
-    # Establecer el timeout (en segundos)
-    timeout_duration = 7200  # 300 segundos = 5 minutos (cambia según lo necesario)
-    signal.signal(signal.SIGALRM, handler_timeout)
-    signal.alarm(timeout_duration)  # Establecer el tiempo límite de la alarma
 
-    start_time = time()  # Registrar el inicio del proceso
+    timeout_duration = 7200  
+    signal.signal(signal.SIGALRM, handler_timeout)
+    signal.alarm(timeout_duration)  
+
+    start_time = time()  
 
     try:
         while True:
-            # Verificar si ha pasado demasiado tiempo
             if time() - start_time > timeout_duration:
                 raise TimeoutError("Timeout reached during execution")
 
-            # Recibir del lado C++
             msgInterface.PyRecvBegin()
             if msgInterface.PyGetFinished():
                 break
 
-            # Enviar al lado C++
             msgInterface.PySendBegin()
             vector_data = msgInterface.GetCpp2PyVector()[0]
             _sinr_eff = vector_data.sinr_eff
@@ -105,14 +102,12 @@ def main(amc: str, folder: str, exp_args: dict):
 
     except TimeoutError as e:
         print(f"TimeoutError: {e}")
-        # Terminar el experimento y liberar recursos
         print("Timeout reached, exiting...")
         if exp.proc:
-            exp.proc.terminate()  # Terminar el proceso asociado con la simulación
+            exp.proc.terminate()  
             print("Simulation process terminated.")
-        # Verificar si simCmd es un proceso y terminarlo
         if isinstance(exp.simCmd, subprocess.Popen):
-            exp.simCmd.terminate()  # Terminar el proceso asociado con la simulación
+            exp.simCmd.terminate() 
             print("SimCmd process terminated.")
         sys.exit(1)
 
